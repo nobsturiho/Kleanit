@@ -462,6 +462,7 @@ def clean(data):
     
     # #### Sectors
     sector_keywords = {
+        'Food & Beverage': ['bakery','confection','fast food','restaurant','baker','cook','bar','disco','beverage'],
         'Other': ['other other','commuinty and social services3','social and other services','commuinty and social services','nan',
                   'purchase of assets','otherworking','otherother','otherportfolio','restructuring of facility','memebership organisations',
                  'rehabilitation','green leaf','proprietrural','computer purchase','proprietservices','purchasemachinery/equipmen','rural mix',
@@ -494,8 +495,7 @@ def clean(data):
         'Financial Services': ['financ', 'banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
         
         'Health': ['health', 'medical', 'pharmac', 'diagnos','drug screening'],
-        
-        'Food & Beverage': ['bakery','confection','fast food','restaurant','baker','cook','bar','disco','beverage'],
+
         
         'Manufacturing': ['manufactur','factory','productionproduction','production production','proprietarts & crafts', 'handicraft',
                           'engineering workshop','furniture making','bamboo and cane work','jute work','wood products and furniture',
