@@ -254,6 +254,8 @@ def clean(data):
     data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
                                                                              str[-10:] =='Individual'),'Individual',data['Loan_type']) 
     
+    data['Loan_type'] = np.where((data['lender']=='KAMRO Capital'), 'Individual', data['Loan_type'])
+    
     data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
                                                                              str[-5:] =='Group'),'Group',data['Loan_type']) 
     
