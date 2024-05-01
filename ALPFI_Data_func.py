@@ -164,6 +164,7 @@ def clean(data):
     data['Interest_rate'] = data['Interest_rate'].astype(str)
     data['Interest_rate'] = data['Interest_rate'].str.replace('per month','')
     data['Interest_rate'] = data['Interest_rate'].str.replace('%','')
+    data['Interest_rate'] = data['Interest_rate'].replace('1.6','16')
     
     data['Interest_red_bal'] = pd.to_numeric(data['Interest_rate'], errors = 'coerce')
     
@@ -197,6 +198,12 @@ def clean(data):
         
         elif row['lender'] == "Pride II" or row['lender'] =='Pride Microfinance Ltd':
             data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18.0', '31.5').replace('14.5', '25.5'))/100
+
+        elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] > 100:
+            data.at[index, 'Interest_red_bal'] = round(round(row['Interest_red_bal']/row['Loan_amount'],3)*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
+       
+        elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] < 100:
+            data.at[index, 'Interest_red_bal'] = round(row['Interest_red_bal']*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
         
         else:
             data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
@@ -226,7 +233,7 @@ def clean(data):
             data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']//(30/7)
         
         #flow Uganda
-        elif row['lender'] == 'Flow Uganda':
+        elif row['lender'] == 'Flow Uganda' or row['lender'] == 'KAMRO Capital':
             data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
         
         elif (row['lender'] == 'Hofokam Limited') & (row['Tenure_of_loan'] >36):
