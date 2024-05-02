@@ -52,7 +52,8 @@ if uploaded_file is not None:
     
     # Display the DataFrame
     st.subheader("Preview of the raw data:")
-    st.write("The shape is: ",df.shape)
+    st.write("The number of loans is: ",df.shape[0])
+    st.write("The number of columns is: ",df.shape[1])
     st.write(df.head())
     
     
@@ -182,3 +183,36 @@ if uploaded_file is not None:
             st.metric('Average number of employees:', employees)
         except Exception:
             st.write("Error")
+         
+            
+                
+        st.subheader('Regional Analytics')
+        grouped_data = df.groupby('Region').agg({'id': 'count',
+                                                    'Gender': lambda x: (x == 'Female').sum(),
+                                                'Age_Group': lambda x: (x == 'Youth').sum(),
+                                                   'Loan_amount': ['mean', 'sum']})
+
+        # Rename the columns
+        grouped_data.columns = 'Number of loans', 'Number of women', 'Number of youths','Average Ticket Size (UGX 000)','Total Amount Disbursed (UGX M)'
+        
+        # Reset the index to make 'Region' a column
+        grouped_data.reset_index(inplace=True)
+        grouped_data['Average Ticket Size (UGX 000)'] = round(grouped_data['Average Ticket Size (UGX 000)']/1000,3)
+        grouped_data['Total Amount Disbursed (UGX M)'] = round(grouped_data['Total Amount Disbursed (UGX M)']/1000000,2)
+        
+        grouped_data['Pct women (%)'] = round((grouped_data['Number of women']/grouped_data['Number of loans'])*100,2)
+        grouped_data.insert(grouped_data.columns.get_loc('Number of women')+1, 'Pct women (%)', grouped_data.pop('Pct women (%)'))
+        
+        grouped_data['Pct youths (%)'] = round((grouped_data['Number of youths']/grouped_data['Number of loans'])*100,2)
+        grouped_data.insert(grouped_data.columns.get_loc('Number of youths')+1, 'Pct youths (%)', grouped_data.pop('Pct youths (%)'))
+        grouped_data = grouped_data.sort_values('Number of loans', ascending=False)
+        
+        # Display the resulting DataFrame
+        st.write(grouped_data)
+        
+        
+        st.subheader('Districts Served')
+        districts = pd.DataFrame(df.groupby(['District'])['id'].count())
+        districts.rename(columns={'id': 'Number of loans'}, inplace=True)
+        districts = districts.sort_values('Number of loans', ascending=False)
+        st.write(districts)
