@@ -369,7 +369,7 @@ def clean(data):
     data['Number_of_youth_employees'] = data['Number_of_youth_employees'].str.replace(' ','')
     data['Number_of_youth_employees'] = np.where((pd.to_numeric(data['Number_of_youth_employees'], errors='coerce')>100),'', 
                                                  data['Number_of_youth_employees'])
-    data['Number_of_youth_employees'] = pd.to_numeric(data['Number_of_youth_employees']).astype("Int64")
+    data['Number_of_youth_employees'] = pd.to_numeric(data['Number_of_youth_employees'], errors = 'coerce').astype("Int64")
     
     
     
