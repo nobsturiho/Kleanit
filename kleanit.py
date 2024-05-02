@@ -4,6 +4,8 @@ Created on Sun Dec 24 15:36:11 2023
 
 @author: Nobert Turihohabwe
 """
+
+
 #pip install streamlit
 import streamlit as st
 import pandas as pd
@@ -12,17 +14,22 @@ import datetime
 import ALPFI_Data_func as fx
    
 
-#Develop DashBoard
-st.header('Project Kleanit (MSE Recovery Fund)')
 
-
-st.subheader('About The Fund')
-
-st.write('The Micro and Small Enterprises (MSE) Recovery Fund is a 5-year, USD 20MN (approximately UGX 70 Bn)',
-             'initiative under the Mastercard Foundation Young Africa Works program, established in partnership with',
-             ' Financial Sector Deepening (FSD) Uganda to offset the shocks of the COVID-19 pandemic on the economy of',
-             ' Uganda through investments in Micro and Small Enterprises, via Tier III and Tier IV financial institutions.')
-
+st.markdown(
+    """
+    <div style="padding: 20px; border: 2px solid darkblue; border-radius: 5px;">
+        <h2>Project Kleanit (MSE Recovery Fund)</h1>
+        <h3>About The Fund</h2>
+        <p>
+            The Micro and Small Enterprises (MSE) Recovery Fund is a 5-year, USD 20MN (approximately UGX 70 Bn)
+            initiative under the Mastercard Foundation Young Africa Works program, established in partnership with
+            Financial Sector Deepening (FSD) Uganda to offset the shocks of the COVID-19 pandemic on the economy of
+            Uganda through investments in Micro and Small Enterprises, via Tier III and Tier IV financial institutions.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 st.subheader('Import file to clean')

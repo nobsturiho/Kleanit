@@ -214,6 +214,7 @@ def clean(data):
     
     
     # #### Tenure_of_loan
+    data['Tenure_of_loan'] = data['Tenure_of_loan'].astype(str)
     data['Tenure_of_loan'] = data['Tenure_of_loan'].str.lower()
     data['Tenure_of_loan'] = data['Tenure_of_loan'].replace({'4 quarter(s)':'12'})
     
@@ -274,6 +275,7 @@ def clean(data):
     
     
     # #### Loan_cycle
+    
     data['Loan_cycle'] = pd.to_numeric(data['Loan_cycle'], errors = 'coerce')
     
     
@@ -282,6 +284,7 @@ def clean(data):
     
     
     # #### Expected_number_of_installments
+    data['Expected_number_of_installments'] = data['Expected_number_of_installments'].astype(str)
     data['ENI_temp'] = data['Expected_number_of_installments']
     try:
         data['Expected_number_of_installments'] = data['Expected_number_of_installments'].str.lower()
@@ -309,6 +312,7 @@ def clean(data):
     
     
     # #### Expected_monthly_installment
+    data['Expected_monthly_installment'] = data['Expected_monthly_installment'].astype(str)
     data['Expected_monthly_installment'] = np.where((data['lender']=='Mushanga SACCO') & (pd.to_numeric(data['ENI_temp'], errors ='coerce')>1000), 
                                                     data['ENI_temp'], data['Expected_monthly_installment'])
     
@@ -356,6 +360,7 @@ def clean(data):
     
     
     # #### Number_of_youth_employees	
+    data['Number_of_youth_employees'] = data['Number_of_youth_employees'].astype(str)
     try:
         data['Number_of_youth_employees'] = data['Number_of_youth_employees'].str.title()
     except Exception:
@@ -369,6 +374,7 @@ def clean(data):
     
     
     # #### Annual_revenue_of_borrower
+    data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].astype(str)
     data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].str.lower()
     
     data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].str.replace(' ','')
@@ -384,6 +390,7 @@ def clean(data):
     
     
     # #### Length of Time running
+    data['Length_of_time_running'] = data['Length_of_time_running'].astype(str)
     data['Length_of_time_running'] = data['Length_of_time_running'].str.lower()
     data['Length_of_time_running'] = data['Length_of_time_running'].str.split('y', expand=True)[0]
     
@@ -413,6 +420,7 @@ def clean(data):
     
     
     # #### Person_with_disabilities
+    data['Person_with_disabilities'] = data['Person_with_disabilities'].astype(str)
     data['Person_with_disabilities'] = data['Person_with_disabilities'].str.title()
     data['Person_with_disabilities'] = data['Person_with_disabilities'].str.replace(' ','') 
     data['Person_with_disabilities'] = data['Person_with_disabilities'].replace({'False':'No', 'True':'Yes', 'N':'No', '0':'',
@@ -421,6 +429,7 @@ def clean(data):
     
     
     # #### Number_of_employees_that_are_refugees
+    data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].astype(str)
     data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].str.title()
     data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].str.replace(' ','')
     data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].replace({'No':'0',"None":'0',"Non":'0',
@@ -430,6 +439,7 @@ def clean(data):
     
     
     # #### Number_of_female_employees
+    data['Number_of_female_employees'] = data['Number_of_female_employees'].astype(str)
     data['Number_of_female_employees'] = data['Number_of_female_employees'].str.title() 
     data['Number_of_female_employees'] = data['Number_of_female_employees'].replace({'None':'0','     -':'',"No":'0',"Nil":'0',"Yes":''},
                                                                                     regex = True)
@@ -440,6 +450,7 @@ def clean(data):
     
     
     # #### Previously_unemployed
+    data['Previously_unemployed'] = data['Previously_unemployed'].astype(str)
     data['Previously_unemployed'] = data['Previously_unemployed'].str.title()
     data['Previously_unemployed'] = data['Previously_unemployed'].replace({'None':'0','N0':'','Yes':'',"True":'',"False":'',"Ne":'',
                                                                     "No":'',"Y":'',"2 Employees":'2',"N":'','n':''}, regex = True)
@@ -463,6 +474,7 @@ def clean(data):
     
     
     # #### Loan_cycle_fund_specific
+    data['Loan_cycle_fund_specific']  = data['Loan_cycle_fund_specific'].astype(str)
     data['Loan_cycle_fund_specific'] = data['Loan_cycle_fund_specific'].str.title()
     data['Loan_cycle_fund_specific'] = data['Loan_cycle_fund_specific'].replace({'N':'',"Fsd Uganda":''})
     data['Loan_cycle_fund_specific'] = (pd.to_numeric(data['Loan_cycle_fund_specific'], errors = 'coerce').round(0)).astype('Int64')
