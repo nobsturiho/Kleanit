@@ -81,12 +81,13 @@ if uploaded_file is not None:
         with st.expander("Export Clean Data"):
             
             import calendar
-            month = calendar.month_name[int(df['month'].max())]
+            month = df[df['year']==df['year'].max()]['month'].max()
+            month = calendar.month_name[int(month)]
             #Add button to Download Data
             st.download_button(
                 label="Click to Download Clean File",
                 data=df.to_csv(index=False),  # Convert DataFrame to Excel data
-                file_name= f"Clean_Data_{month}-{df['year'].max()}_Clean_Data.csv",  # Set file name
+                file_name= f"Clean_Data_{month}-{df['year'].max()}_MSE-RF.csv",  # Set file name
             )
             
             
