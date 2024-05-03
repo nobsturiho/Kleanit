@@ -21,7 +21,7 @@ st.markdown(
         <h2>Project Kleanit (MSE Recovery Fund)</h1>
         <h3>About The Fund</h2>
         <p>
-            The Micro and Small Enterprises (MSE) Recovery Fund is a 5-year, USD 20MN (approximately UGX 70 Bn)
+            The Micro and Small Enterprises (MSE) Recovery Fund is a 5-year, USD 22MN (approximately UGX 80 Bn)
             initiative under the Mastercard Foundation Young Africa Works program, established in partnership with
             Financial Sector Deepening (FSD) Uganda to offset the shocks of the COVID-19 pandemic on the economy of
             Uganda through investments in Micro and Small Enterprises, via Tier III and Tier IV financial institutions.
@@ -90,8 +90,6 @@ if uploaded_file is not None:
                 data=df.to_csv(index=False),  # Convert DataFrame to Excel data
                 file_name= f"Clean_Data_{month}-{df['year'].max()}_MSE-RF.csv",  # Set file name
             )
-            
-            
             
         
         #Add Portfolio Monitoring Fields
