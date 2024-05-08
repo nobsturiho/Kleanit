@@ -774,7 +774,7 @@ def clean(data):
     # #### Regions
     region_keywords = {
         'Western': ['hoima','masindi','kyenjojo','kyegegwa','kibaale','kikuube','kitagwenda','kamwenge','kasese','bundibugyo',
-                   'kagadi','fort portal','kiryandongo','kabarole','kabalore','bunyangabu','buliisa'],
+                   'kagadi','fort portal','kiryandongo','kabarole','bunyangabu','buliisa'],
         'West Nile': ['arua','madi okollo','zombo','moyo','obongi','yumbe','nebbi','koboko','pakwach','maracha','adjumani','terego'],
         
         'South Western': ['bushenyi', 'mbarara', 'rukungiri', 'ntungamo', 'kanungu', 'kabale', 'kiruhura', 'kisoro', 'mitooma',
