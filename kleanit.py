@@ -108,7 +108,7 @@ if uploaded_file is not None:
             Ticket = format(round(df['Loan_amount'].mean(),0), ',')
             st.metric('Avg Tickets (UGX)', Ticket, 0)
         with col1:
-            Interest = round((df['Interest_red_bal'].mean())*100,1)
+            Interest = round((df['Annual_Interest_red_bal-Cleaned'].mean())*100,1)
             st.metric('Average Interest (%)', Interest, 0)
         with col2:
             Gender = pd.DataFrame(df.groupby(by ='Gender').count()['year']).rename(columns = {'year':'Number'})

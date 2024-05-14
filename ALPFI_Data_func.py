@@ -489,6 +489,15 @@ def clean(data):
                  'rehabilitation','green leaf','proprietrural','computer purchase','proprietservices','purchasemachinery/equipmen','rural mix',
                  'water tank','other activities','other services','other reasons'],
         
+        'Financial Services': ['financ', 'banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
+        
+        'Services': ['welding','saloon','salon','laundry','mechanic','tailor','print','weaving','proprietary services','phone and fax',
+                    'baby care','garages','internet caf','events management','beauty parlour','propriet services','clearing and forwarding',
+                    'electricians','marketing and advertisement','import consumer','telecommunications','photography','electricity,lighting',
+                    'plumber','house cleaning','service','decorations'],
+        
+        'Health': ['health', 'medical', 'pharmac', 'diagnos','drug screening'],
+        
         'Wholesale & Retail Business': ['trade trade','merchandise','stall','cottage industry','trading','retail','boutique','wholesale',
                 'hawk','business','sell''shop', 'agribusiness','buying stock','cloth selling','water selling',
                 'textile','super market','supply of produce','clothes','stationeries shop','trade and commerc','motocycle spare',
@@ -496,11 +505,6 @@ def clean(data):
                 'tradeworking','whole sale','trade and commerce','proprietary trade','tradeother','trad&com','propriet trade',
                 'garments','cosmetics','tradeportfolio','trade 3','timber & wood sales','proprietarytrade','propriettrade',
                                         'trade trade','trade','working capital'],
-        
-        'Services': ['welding','saloon','salon','laundry','mechanic','tailor','print','weaving','proprietary services','phone and fax',
-                    'baby care','garages','internet caf','events management','beauty parlour','propriet services','clearing and forwarding',
-                    'electricians','marketing and advertisement','import consumer','telecommunications','photography','electricity,lighting',
-                    'plumber','house cleaning','service','decorations'],
         
         'Agriculture & Agro processing': ['agriculture','crops', 'maize','rice', 'agro products','animal', 'farm', 'rearing',
                 'vegetable', 'fish','poultry','coffee','beef','cattle','banana','livestock','agro input','maize','paultry',
@@ -512,10 +516,6 @@ def clean(data):
                                         'tomatoes','tea production','add in produce','irrigation','goat restocking','produce'],
         
         'Technology': ['technology', 'software', 'hardware'],
-        
-        'Financial Services': ['financ', 'banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
-        
-        'Health': ['health', 'medical', 'pharmac', 'diagnos','drug screening'],
 
         
         'Manufacturing': ['manufactur','factory','productionproduction','production production','proprietarts & crafts', 'handicraft',
@@ -821,7 +821,9 @@ def clean(data):
     # Insert 'Region' column next to 'District'
     data.insert(data.columns.get_loc('District')+1, 'Region', data.pop('Region'))
     
-    
+    #Rename columns
+    data.rename(columns = {'Interest_rate':'Interest_rate(As submitted by PFI)', 'Interest_red_bal':'Annual_Interest_red_bal-Cleaned',
+                           'Tenure_of_loan':'Tenure_of_loan(months)'}, inplace = True)
     
     # #### Delete dummy columns
     dummies = ['issuetemp','agetemp','repaytemp','ENI_temp','time_runtemp','sectortemp','created']
