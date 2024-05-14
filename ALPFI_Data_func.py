@@ -489,6 +489,9 @@ def clean(data):
                  'rehabilitation','green leaf','proprietrural','computer purchase','proprietservices','purchasemachinery/equipmen','rural mix',
                  'water tank','other activities','other services','other reasons'],
         
+        'services':['service'],
+        'health': ['pharmac'],
+        'financial services': ['financ'],
         
         'Wholesale & Retail Business': ['trade trade','merchandise','stall','cottage industry','trading','retail','boutique','wholesale',
                 'hawk','business','sell''shop', 'agribusiness','buying stock','cloth selling','water selling',
@@ -498,15 +501,15 @@ def clean(data):
                 'garments','cosmetics','tradeportfolio','trade 3','timber & wood sales','proprietarytrade','propriettrade',
                                         'trade trade','trade','working capital'],
         
-        'Financial Services': ['financ', 'banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
+        'Financial Services': ['banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
         
         'Services': ['welding','saloon','salon','laundry','mechanic','tailor','print','weaving','proprietary services','phone and fax',
                     'baby care','garages','internet caf','events management','beauty parlour','propriet services','clearing and forwarding',
                     'electricians','marketing and advertisement','import consumer','telecommunications','photography','electricity,lighting',
-                    'plumber','house cleaning','service','decorations'],
+                    'plumber','house cleaning','decorations'],
         
         
-        'Health': ['health', 'medical', 'pharmac', 'diagnos','drug screening'],
+        'Health': ['health', 'medical', 'diagnos','drug screening'],
         'Agriculture & Agro processing': ['agriculture','crops', 'maize','rice', 'agro products','animal', 'farm', 'rearing',
                 'vegetable', 'fish','poultry','coffee','beef','cattle','banana','livestock','agro input','maize','paultry',
                 'sugar cane','diary','fattening','irish','legume','fertilizer','crop products','agri fruits','piggery','seedlings',
@@ -557,12 +560,14 @@ def clean(data):
                 if keyword in line_of_business:
                     data.at[index, 'Sector'] = sector
                     break  # Exit the loop once a sector is identified for the current row
+    
                     
+    
     # Insert 'Sector' column next to 'Loan purpose'
     data.insert(data.columns.get_loc('Loan_purpose')+1, 'Sector', data.pop('Sector'))
     
     
-    
+    data['Sector'] = data['Sector'].str.title()
     # #### Districts
     district_keywords = {
         'Lwengo': ['lwengo','mbirizi','kyamuyunga','bukyanagandi','kapochi','katuulo','kyasenya','mweru','kanku','lubaale b',
