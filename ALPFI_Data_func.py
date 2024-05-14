@@ -20,6 +20,11 @@ def clean(data):
     
     # ####Line_of_business to sentence case
     data['Line_of_business'] = data['Line_of_business'].str.title()
+    
+    
+    # ####Loan_product_description to sentence case
+    data['Loan_product_description'] = data['Loan_product_description'].str.title()
+    
     # Insert 'Line_of_business' column next to 'Loan_product_description'
     data.insert(data.columns.get_loc('Loan_product_description')+1, 'Line_of_business', data.pop('Line_of_business'))
     
@@ -205,6 +210,9 @@ def clean(data):
         elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] < 100:
             data.at[index, 'Interest_red_bal'] = round(row['Interest_red_bal']*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
         
+        elif row['lender'] == 'Development Microfinance':
+            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('30', '51'))/100
+        
         else:
             data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
     
@@ -226,8 +234,8 @@ def clean(data):
     
     for index, row in data.iterrows():
         #PFI submits day
-        if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO':
-            data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']//30
+        if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO'or row['lender'] == 'Development Microfinance':
+            data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']//30.5
         
         #PFI that submit weeks
         elif row['lender'] == 'Finfort' or row['lender'] =='Pride II' or row['lender'] =='Pride Microfinance Ltd':
@@ -251,7 +259,7 @@ def clean(data):
     
     data['Loan_type'] = data['Loan_type'].replace({'Swl':'Individual', 'New':'Individual','Sme':'Individual','Employee':'Individual','Small':'Individual'},regex=True)
     data['Loan_type'] = data['Loan_type'].replace({'Business-Mserf':'Individual','Agriculture-Mserf':'Individual'},regex=True)
-    data['Loan_type'] = data['Loan_type'].replace({'I':'Individual','G':'Group','C':'Group'})
+    data['Loan_type'] = data['Loan_type'].replace({'I':'Individual','G':'Group','C':'Group','Jlg':'Group'})
     data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
                                                                              str[-10:] =='Individual'),'Individual',data['Loan_type']) 
     
@@ -300,9 +308,7 @@ def clean(data):
     
     data['Expected_number_of_installments'] = np.where((data['lender']=='Mushanga SACCO') & (pd.to_numeric(data['Expected_number_of_installments'],
                                 errors ='coerce')>1000),data['Expected_monthly_installment'], data['Expected_number_of_installments'])
-    
-    data['Expected_number_of_installments'] = np.where((data['lender']=='Nile Microfinance') & (pd.to_numeric(data['Expected_number_of_installments'],
-                                errors ='coerce')>1000),data['Tenure_of_loan'], data['Expected_number_of_installments'])
+
     
     data['Expected_number_of_installments'] = np.where(((data['lender']=='Nile Microfinance') | (data['lender']=='Butuuro SACCO') | (data['lender']=='Vision Fund')) &
                     (pd.to_numeric(data['Expected_number_of_installments'],errors ='coerce')>1000),data['Tenure_of_loan'], data['Expected_number_of_installments'])
@@ -338,7 +344,7 @@ def clean(data):
         data['Number_of_employees'] = data['Number_of_employees'].str.replace(char, '')
         
     data['Number_of_employees'] = data['Number_of_employees'].replace({'None':'0','No':'','2-4':'3','5-15':'10',"16-30":'23',
-                                        "tAvailable":'',"Notavailable":'',"B":'',"02-Apr":'3',"31-45":'38',"May-15":''},regex=True)
+                                        "tAvailable":'',"Notavailable":'',"B":'',"02-Apr":'3',"31-45":'38',"May-15":'',"Tgiven":'',"46-50":'48'},regex=True)
     
     data['Number_of_employees'] = np.where((pd.to_numeric(data['Number_of_employees'], errors='coerce')>100),'', data['Number_of_employees'])
     
@@ -509,7 +515,6 @@ def clean(data):
                     'electricians','marketing and advertisement','import consumer','telecommunications','photography','electricity,lighting',
                     'plumber','house cleaning','decorations'],
         
-        
         'Health': ['health', 'medical', 'diagnos','drug screening'],
         'Agriculture & Agro processing': ['agriculture','crops', 'maize','rice', 'agro products','animal', 'farm', 'rearing',
                 'vegetable', 'fish','poultry','coffee','beef','cattle','banana','livestock','agro input','maize','paultry',
@@ -522,12 +527,11 @@ def clean(data):
         
         'Technology': ['technology', 'software', 'hardware'],
 
-        
         'Manufacturing': ['manufactur','factory','productionproduction','production production','proprietarts & crafts', 'handicraft',
                           'engineering workshop','furniture making','bamboo and cane work','jute work','wood products and furniture',
                           'arts & crafts','leather workshop','non-metal and metal produ'],
         
-        'Education & Skills': ['educat','school','tuition','train'],
+        'Education & Skills': ['educat','school','tuition','train','nurserynursery'],
         
         'Tourism & Hospitality': ['hotel','tour','recreational cultural','guest house'],
         
@@ -535,7 +539,7 @@ def clean(data):
         
         'Real Estate': ['rent','construct', 'estate','house renovation','house completion','carpentry','house improveme','home improve',
                         'building and working','purchaseland','completing housebusines','renovating house','land purchase',
-                        'building inspection','completing house','constraction','housing development','land acquisition'],
+                        'building inspection','completing house','constraction','housing development','land acquisition','brick laying'],
         
         'Transport': ['transport','boda','motorcycle','van/matatu','auto richshaw'],
         
@@ -566,14 +570,18 @@ def clean(data):
     
     # Insert 'Sector' column next to 'Loan purpose'
     data.insert(data.columns.get_loc('Loan_purpose')+1, 'Sector', data.pop('Sector'))
-    
-    
+    #title case    
     data['Sector'] = data['Sector'].str.title()
+    
+    
     # #### Districts
     district_keywords = {
+        'luwero':['sempa'],
+        'mbarara': ['rwizi'],
+        'wakiso': ['zana'],
         'Lwengo': ['lwengo','mbirizi','kyamuyunga','bukyanagandi','kapochi','katuulo','kyasenya','mweru','kanku','lubaale b',
                   'nakyenyi','lubanda','kitawuluzi','buyingo','misenyi'],
-        'Kalungu': ['kalungu','lukaya','kibisi','bugonzi','mulo','kyamulibwa','bukulula',' lusango'],
+        'Kalungu': ['kalungu','lukaya','kibisi','bugonzi','mulo','kyamulibwa','bukulula',' lusango','kiweesa'],
         'Kyenjojo': ['kyenjojo','kasiina','kihura','kaija','mabale'],
         'Kazo': ['kazo', 'magondo', 'rwemikoma', 'kyabahura','Kyenshebashebe','ntambazi','kyabahura','bijengye'],
         'Kaberamaido': ['kaberamaido','kaberimaido','olobo'],
@@ -586,7 +594,8 @@ def clean(data):
         'Kyegegwa': ['kyegegwa','kyeggegwa','kigambo','baranywa','nyabwingiri','kaingani','kidogodo','kako'],
         'Luweero': ['luwero','luweero','wobulenzi','kiwogozi','musaale','nakikoota','nakabiito','kalongo miti','kabakedi',
                     'bukambagga','ttimba','bombo','+0.705010,+32534343','ssenyomo','bowa','wakatayi','kagogo','buzibweera',
-                    'ndibulungi','kibanyi','mabuye','nkiga','lumu','bunyaaka','lusenke','mawu-nsavu','kasana ',' binyonyi'],
+                    'ndibulungi','kibanyi','mabuye','nkiga','lumu','bunyaaka','lusenke','mawu-nsavu','kasana ',' binyonyi','kasaala'],
+    
         'Lira': ['lira','te-dam cel','senior quarters','ojwina','kakoge','oweera a','awita village','atego a','woromite','tekulu',
                 'starch f','ireda central','central park','ayere cell','obanga pe','obutwelo'],
         'Serere': ['serere','amese','ochorai','kamurojo','kakus','apapai'],
@@ -602,13 +611,13 @@ def clean(data):
         'Arua': ['arua','teremo','lobuju','nsymbia','nunu','oli health centre','pokea','enjeva','logiri','oluodri','komite',
                 'muni','ombavu','kijoro kubo','polota','ediofe','ociba','azind','ocodri','ombau','ewuata','ambala','mvara','adraka',
                 'adrua','eroko','chongolan','odrani village','ekaligo','odivu','manibe','pamuro','awindiri','buluku','oyooze',
-                'komendaku','olevu','elefe'],
+                'komendaku','olevu','elefe','onzivu'],
         'Masaka': ['masaka','nyendo','kiyujja','buchulo','mpugwe','kiyimbwe','sserinya','kyantale','kimanya','kisaaka','bwala',
                   'kirinda','buyinja','bukunda','kabonera','mirundu',' nakayiba',' soweto'],
         'Abim': ['abim'],
         'Moyo': ['moyo','lefori','palorinya','palujo','oraa','onyire','pageribe','vura madulu'],
         'Kamwenge': ['kamwenge', 'kyabandara','bwizi t c','kamwen','biguli','nkoma','kicheche','bwitankanja','kyahalimu','rwempikye',
-                    'kaliza','kabambiro',' bunoga'],
+                    'kaliza','kabambiro',' bunoga',"bwizi  t"],
         'Mukono': ['mukono','seeta','kalagi','kyampisi','ngandu','nyenje','namawojjolo','namilyango','goma, +0.400000','kigunga',
                   'kibaati','ham mukasa','kasala','nakisunga','nangwa','katoogo','lwazi lc1','nakasagazi','mbiiko','mpata',
                    'lutengo','kasokoso','namayiba','ntawo','kyetume','lusera','kakukuulu'],
@@ -621,7 +630,7 @@ def clean(data):
                    'kashaka','kobwoba','igorora t/c','ntuura','kashenyi','nyabisirira','rubindi','byanamira','nchune','kariro',
                     'rwebikoona','mitoozo','bunenero','nyantungu','hospital zone','makenke','biharwe','rwemigina','katojo','nyabugando',
                    'kahingo','kyatamba','mwengura','kaiba','rwobuyenje','nyanja','kakyerere','kakiika','buteraniro','rugando',
-                   'rugarura','karwensanga','nombe','nyamiriro'],
+                   'rugarura','karwensanga','nombe','nyamiriro','mugarutsya'],
     
         'Wakiso': ['wakiso', 'kyaliwajjala', 'nansana', 'entebbe', 'abayita', 'kireka', 'matuga','kyengera','kasangati','bweyogerere',
                   'gayaza','nakawuka','bunono','masajja b','namagooma','bulamago','bukasa','kisimu','nangabo','kasanje','katooke',
@@ -631,37 +640,38 @@ def clean(data):
                   'lukwanga','zimuddi','najjemba','kyegobo','kikubapanga','kakunyu','kisimbiri','kikubampanga','naggalabi','serinyabbi',
                   'nabbingo','namulanda','ddewe','najjera','masooli','wattuba lc1','kabanyoro','gobero','magigye','namyumba',
                    'mwererwe','kikokiro','lunyo','bbaka','kiira','masajja','ttaba kamunye','namagola','buzzi','kasngati','nabweru',
-                  'ndejje','kajjansi','kanaala','kiryamuli','kigoma'],
+                  'ndejje','kajjansi','kanaala','kiryamuli','kigoma','abaita ababiri','maganjo b'],
     
         'Kampala': ['kampala', 'mpala','ben kiwanuka', 'nateete', 'katwe','city centre','kawempe','kabalagala','nakulabye','nakawa',
                     'entebbe road','kalerwe','bulenga','kansanga','wandegeya', 'ntinda', 'acacia', 'bukoto', 'najjanankumbi',
                     'makindye','najja','kitintale','kibuli','kasubi','central ward','nsambya','bwaise','kisaasi','kira town council',
                    'mutungo','masanafu','kanyanya','madrisa','lunguja','kitende','lungujja','muyenga','mulago','luzira','luthuli',
                    'kisasi','bulabira','kabuusu','namirembe','kavule','kibuye','nakasero','kifumbira','kyambogo','gogonya',
-                    'salaama','nakinyuguzi','kyebando','kitante','kirombe','kabakanjagala'],
+                    'salaama','nakinyuguzi','kyebando','kitante','kirombe','kabakanjagala','rubaga'],
         
         'Kiruhura': ['kiruhura', 'kasaana', 'kinoni', 'rushere', 'kyabagyenyi','shwerenkye','kayonza', 'kikatsi',
                      'kihwa','kiguma','burunga','rwanyangwe','nyakashashara','ekikoni','kyenshama','kagando','kashongi','nkungu',
-                    'obwengara','rwempiri','kyampangara','kijuma','nshwere empango','kenshunga'],
+                    'obwengara','rwempiri','kyampangara','kijuma','nshwere empango','kenshunga','akajumbura','bugarihe'],
 
         'Ibanda': ['ibanda', 'katongore','bihanga', 'rwetweka','mushunga','ishongororo', 'kikyenkye','nyakigando','nyarukiika',
-                   'kagongo','bwengure','kabaare','kashangura','kyeikucu','kabura','nyabuhikye','igorora','keihangara','nyaburama'],
+                   'kagongo','bwengure','kabaare','kashangura','kyeikucu','kabura','nyabuhikye','igorora','keihangara','nyaburama',
+                  'kanyarugiri','kyabarende','kayenje','rwemereire','ryakatumba','katafari','mashuri'],
 
         'Bushenyi': ['ishaka', 'bushenyi', 'kijumo','kabare','kakanju', 'nyamirembe','nkanga','nyabubare','bwekingo','kibaare',
-                    '-0.547617+30.173673','nyakabirizi','kyabugimbi','kiyagaara'],
+                    '-0.547617+30.173673','nyakabirizi','kyabugimbi','kiyagaara','kyanyamutungu','kibutamo','kyeizooba','bushen'],
     
-        'Isingiro': ['isingiro', 'bushozi','Kabaare','ngarama','rwembogo','kabuyanda','bushen','kigaragara','rwentuha','humura'],
+        'Isingiro': ['isingiro', 'bushozi','Kabaare','ngarama','rwembogo','kabuyanda','kigaragara','rwentuha','humura'],
 
     
-        'Kibingo': ['buringo', 'masheruka','bwayegamba','karera'],
+        'Kibingo': ['buringo', 'masheruka','bwayegamba','karera','kyangyenyi','kibingo'],
         'Sheema': ['sheema','kabwohe', 'rwanama','mashojwa','rushoroza','rushogashoga','kigarama','rwanyinakihaire','katanoga',
-                   'kagango','rweibaare','rweigaga','kibingo'],
+                   'kagango','rweibaare','rweigaga'],
         'Ntungamo': ['ntungamo','ntugam','kyaruhanga','rubaare','katomi','dembe','nyaruhaga'],
         'Rukiga': ['rukiga', 'nyakambu','rwenyangye','kamwezi','kawawu'],
-        'Rukungiri': ['rukungiri','kihihi','rwampuga','mabanga','kanyanyegayegye','-0.853340 +30.017587','bikulungu'],
+        'Rukungiri': ['rukungiri','kihihi','rwampuga','mabanga','kanyanyegayegye','-0.853340 +30.017587','bikulungu','kitengyento'],
         'Iganga': ['iganga','namufuma','bulubandi','busembatia','0.840531, 33.498'],
         'Amuria':['amuria','ococai','omoratok'],
-        'Buikwe': ['buikwe','lugazi','nkokonjeru',', njeru','0.472706, 33.157','makonge','wabaale'],
+        'Buikwe': ['buikwe','lugazi','nkokonjeru',', njeru','0.472706, 33.157','makonge','wabaale','nkokohjeru','bugoba'],
         'Bugiri': ['bugiri'],
         'Soroti': ['soroti','gweri acuma','nakatunya ward','okuku','oderai','samuk','opiyai','orwadai'],
         'Kagadi':['kagadi','0.907898, 30.883805','mabaale','kihingana'],
@@ -674,10 +684,11 @@ def clean(data):
         'Koboko': ['koboko'],
         'Mityana': ['mityana','busunju','kitongo','nakanyenya','kakindu','mbaliga','kikandwa','kannyagoga','kiryokya','mpiriggwa',
                    'kyesengeze','kawanga','nakitolo','mpirigwa','zigoti','gginzi','lukugga','kiry0kya','bukumula'],
-        'Hoima': ['hoima','kiryatete','kigaaga','mukabara','kabaale','kigorobya','kitabona'],
+        'Hoima': ['hoima','kiryatete','kigaaga','mukabara','kabaale','kigorobya','kitabona','kasingo','kiryawanga','kijwenge','kiryamboga','kanenankumba',
+                 'lusaka upper'],
         'Nakasongola': ['nakasongola','kakooge','rwabyata','kalungi','kiweewa','wabitosi'],
         'Kasese': ['kasese', 'bwera','kakogha','rukoki','kogere','kinyabisiki'],
-        'Masindi': ['masindi','bukooba'],
+        'Masindi': ['masindi','bukooba','kikwanana'],
         'Buhweju': ['buhweju','kabegaramire'],
         'Butambala': ['butambala','kalamba','kankeesa','lwangiri'],
         'Rakai': ['rakai','kasensero','mitukula','kiruuli','kabaseke','kiyooza','lwentulege',' baloole',' kyango'],
@@ -691,7 +702,7 @@ def clean(data):
                 'abang imalo','abako east','acamolaki','apurkec','akatakata','agengi cell','ocampar'],
         'Mitooma': ['mitooma', 'bitereko','nyakatooma','kashenshero'],
         'Rubirizi': ['rubirizi','kichwamba'],
-        'Lyantonde': ['lyantonde','kyemamba'],
+        'Lyantonde': ['lyantonde','kyemamba','lyatonde'],
         'Bukwo': ['bukwo','bukwa'],
         'Busia': ['busia','namungodi','masafu','busiko','0.45245, 34.0883'],
         'Mubende': ['mubende','kasambya','kyakatebe','ntuuma','kiyuni','kasenyi caltex','kyawooga','road, +0.4983','kisekende','nakduduma',
@@ -729,7 +740,7 @@ def clean(data):
         'Kikuube': ['kikuube'],
         'Katakwi':['katakwii','katakwi','oleroi','guyaguya'],
         'Ngora': ['ngora','ariet'],
-        'Nakaseke': ['nakaseke','kiwaguzi b','lumpewe','kivumu','bujuubya','magoma'],
+        'Nakaseke': ['nakaseke','kiwaguzi b','lumpewe','kivumu','bujuubya','magoma','butikwa'],
         'Kasanda': ['kasanda'],
         'Obongi':['obongi'],
         'Yumbe': ['yumbe','awoba','yangani','tuliki','ataboo','otche'],
@@ -752,7 +763,9 @@ def clean(data):
         'Kwania': ['kwania','aduku'],
         'Namutumba': ['namutumba','namutumba','magada','kisiiro'],
         'Agago': ['kalongo','caweng'],
-        'Buliisa': ['kinyala'],    
+        'Buliisa': ['kinyala'],
+        'Nakapiripirit': ['nakapiripirit'],
+        'Ntoroko': ['ntoroko']
         # Add more districts and their associated keywords as needed
     
     }
@@ -775,13 +788,14 @@ def clean(data):
     
     # Insert 'District' column next to 'Location of borrower'
     data.insert(data.columns.get_loc('Location_of_borrower')+1, 'District', data.pop('District'))
-    
+    #title case    
+    data['District'] = data['District'].str.title()
     
     
     # #### Regions
     region_keywords = {
         'Western': ['hoima','masindi','kyenjojo','kyegegwa','kibaale','kikuube','kitagwenda','kamwenge','kasese','bundibugyo',
-                   'kagadi','fort portal','kiryandongo','kabarole','bunyangabu','buliisa'],
+                   'kagadi','fort portal','kiryandongo','kabarole','bunyangabu','buliisa','ntoroko'],
         'West Nile': ['arua','madi okollo','zombo','moyo','obongi','yumbe','nebbi','koboko','pakwach','maracha','adjumani','terego'],
         
         'South Western': ['bushenyi', 'mbarara', 'rukungiri', 'ntungamo', 'kanungu', 'kabale', 'kiruhura', 'kisoro', 'mitooma',
@@ -796,7 +810,7 @@ def clean(data):
                     "bududa",'bukedea','luuka','kaberamaido','ngora','namutumba','kween','namisindwa','butaleja','butebo','bugweri',
                    'buyende'],
         
-        'Karamoja': ['moroto','napak','amudat','abim'],
+        'Karamoja': ['moroto','napak','amudat','abim','nakapiripirit'],
         'Northern': ['gulu','lira','nwoya','apac','oyam','kole','kitgum','dokolo','alebtong','otuke','amolatar','pader','amuru',
                      'omoro','kwania','agago','lamwo']
     
