@@ -483,6 +483,7 @@ def clean(data):
     
     # #### Sectors
     sector_keywords = {
+        'wholesale & retail business':['working capital'],
         'Food & Beverage': ['bakery','confection','fast food','restaurant','baker','cook','bar','disco','beverage'],
         'Other': ['other other','commuinty and social services3','social and other services','commuinty and social services','nan',
                   'purchase of assets','otherworking','otherother','otherportfolio','restructuring of facility','memebership organisations',
@@ -499,7 +500,7 @@ def clean(data):
                 'proprietaryservice','butchery','raw materialsbss','spare parts','general supplies','book shop','general commerce',
                 'tradeworking','whole sale','trade and commerce','proprietary trade','tradeother','trad&com','propriet trade',
                 'garments','cosmetics','tradeportfolio','trade 3','timber & wood sales','proprietarytrade','propriettrade',
-                                        'trade trade','trade','working capital'],
+                                        'trade trade','trade'],
         
         'Financial Services': ['banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
         
