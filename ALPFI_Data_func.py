@@ -35,6 +35,7 @@ def clean(data):
     data['email_of_borrower'] = data['email_of_borrower'].str.lower()
     data['email_of_borrower'] = data['email_of_borrower'].str.replace(' ','')
     data['email_of_borrower'] = data.apply(lambda row: 'no-email' if len(str(row['email_of_borrower'])) <= 13 else row['email_of_borrower'], axis=1)
+    data['email_of_borrower'] = np.where(data['email_of_borrower'].str[-3:] != 'com', 'no-email', data['email_of_borrower'])
     
     
     
@@ -211,7 +212,10 @@ def clean(data):
             data.at[index, 'Interest_red_bal'] = round(row['Interest_red_bal']*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
         
         elif row['lender'] == 'Development Microfinance':
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('30', '51'))/100
+            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('30', '50'))/100
+        
+        elif row['lender'] == 'Liberation Community F.':
+            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('2.5', '50').replace('3', '58'))/100
         
         else:
             data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
@@ -247,7 +251,9 @@ def clean(data):
         
         elif (row['lender'] == 'Hofokam Limited') & (row['Tenure_of_loan'] >36):
             data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
-    
+        
+        elif (row['lender'] == 'Liberation Community F.') & (row['Loan_term_value']=='Weeks'):
+            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(4), 2)
     
     
     # #### Loan type
@@ -595,7 +601,7 @@ def clean(data):
         'Luweero': ['luwero','luweero','wobulenzi','kiwogozi','musaale','nakikoota','nakabiito','kalongo miti','kabakedi',
                     'bukambagga','ttimba','bombo','+0.705010,+32534343','ssenyomo','bowa','wakatayi','kagogo','buzibweera',
                     'ndibulungi','kibanyi','mabuye','nkiga','lumu','bunyaaka','lusenke','mawu-nsavu','kasana ',' binyonyi','kasaala'],
-    
+        
         'Lira': ['lira','te-dam cel','senior quarters','ojwina','kakoge','oweera a','awita village','atego a','woromite','tekulu',
                 'starch f','ireda central','central park','ayere cell','obanga pe','obutwelo'],
         'Serere': ['serere','amese','ochorai','kamurojo','kakus','apapai'],
@@ -619,8 +625,8 @@ def clean(data):
         'Kamwenge': ['kamwenge', 'kyabandara','bwizi t c','kamwen','biguli','nkoma','kicheche','bwitankanja','kyahalimu','rwempikye',
                     'kaliza','kabambiro',' bunoga',"bwizi  t"],
         'Mukono': ['mukono','seeta','kalagi','kyampisi','ngandu','nyenje','namawojjolo','namilyango','goma, +0.400000','kigunga',
-                  'kibaati','ham mukasa','kasala','nakisunga','nangwa','katoogo','lwazi lc1','nakasagazi','mbiiko','mpata',
-                   'lutengo','kasokoso','namayiba','ntawo','kyetume','lusera','kakukuulu'],
+                  'kibaati','ham mukasa','kasala','nakisunga','nangwa','katoogo','lwazi lc1','nakasagazi','mbiiko','mpata','namakomo',
+                   'lutengo','kasokoso','namayiba','ntawo','kyetume','lusera','kakukuulu','kimenyedde','nakifuma','kasawo'],
         'Mpigi': ['mpigi','buwama','buyala,','kayabwe','katende','katiiti','kataba','jjanya','wassozi','busese','ssango a',
                   'bujuuko','kwaba','ndugu','mbazzi','mbizinya','lwera','kawansenyi'],
         'Mbarara': ['mbarara', 'kinoni t/c', 'kitunguru', 'ruhunga','rubaya', 'bwizibwera', 'kakoba', 'rwebishekye','kyandahi','kakoma', 
@@ -631,7 +637,7 @@ def clean(data):
                     'rwebikoona','mitoozo','bunenero','nyantungu','hospital zone','makenke','biharwe','rwemigina','katojo','nyabugando',
                    'kahingo','kyatamba','mwengura','kaiba','rwobuyenje','nyanja','kakyerere','kakiika','buteraniro','rugando',
                    'rugarura','karwensanga','nombe','nyamiriro','mugarutsya'],
-    
+        
         'Wakiso': ['wakiso', 'kyaliwajjala', 'nansana', 'entebbe', 'abayita', 'kireka', 'matuga','kyengera','kasangati','bweyogerere',
                   'gayaza','nakawuka','bunono','masajja b','namagooma','bulamago','bukasa','kisimu','nangabo','kasanje','katooke',
                   'kiwafu','kalambi','busiro','bwebaja','0.139684, 32.563611','nakedde','namugongo','namayumba','kakiri','buddo','bunamwaya',
@@ -640,8 +646,8 @@ def clean(data):
                   'lukwanga','zimuddi','najjemba','kyegobo','kikubapanga','kakunyu','kisimbiri','kikubampanga','naggalabi','serinyabbi',
                   'nabbingo','namulanda','ddewe','najjera','masooli','wattuba lc1','kabanyoro','gobero','magigye','namyumba',
                    'mwererwe','kikokiro','lunyo','bbaka','kiira','masajja','ttaba kamunye','namagola','buzzi','kasngati','nabweru',
-                  'ndejje','kajjansi','kanaala','kiryamuli','kigoma','abaita ababiri','maganjo b'],
-    
+                  'ndejje','kajjansi','kanaala','kiryamuli','kigoma','abaita ababiri','maganjo b','lutette','kawuku'],
+        
         'Kampala': ['kampala', 'mpala','ben kiwanuka', 'nateete', 'katwe','city centre','kawempe','kabalagala','nakulabye','nakawa',
                     'entebbe road','kalerwe','bulenga','kansanga','wandegeya', 'ntinda', 'acacia', 'bukoto', 'najjanankumbi',
                     'makindye','najja','kitintale','kibuli','kasubi','central ward','nsambya','bwaise','kisaasi','kira town council',
@@ -652,17 +658,17 @@ def clean(data):
         'Kiruhura': ['kiruhura', 'kasaana', 'kinoni', 'rushere', 'kyabagyenyi','shwerenkye','kayonza', 'kikatsi',
                      'kihwa','kiguma','burunga','rwanyangwe','nyakashashara','ekikoni','kyenshama','kagando','kashongi','nkungu',
                     'obwengara','rwempiri','kyampangara','kijuma','nshwere empango','kenshunga','akajumbura','bugarihe'],
-
+        
         'Ibanda': ['ibanda', 'katongore','bihanga', 'rwetweka','mushunga','ishongororo', 'kikyenkye','nyakigando','nyarukiika',
                    'kagongo','bwengure','kabaare','kashangura','kyeikucu','kabura','nyabuhikye','igorora','keihangara','nyaburama',
                   'kanyarugiri','kyabarende','kayenje','rwemereire','ryakatumba','katafari','mashuri'],
-
+        
         'Bushenyi': ['ishaka', 'bushenyi', 'kijumo','kabare','kakanju', 'nyamirembe','nkanga','nyabubare','bwekingo','kibaare',
                     '-0.547617+30.173673','nyakabirizi','kyabugimbi','kiyagaara','kyanyamutungu','kibutamo','kyeizooba','bushen'],
-    
+        
         'Isingiro': ['isingiro', 'bushozi','Kabaare','ngarama','rwembogo','kabuyanda','kigaragara','rwentuha','humura'],
-
-    
+        
+        
         'Kibingo': ['buringo', 'masheruka','bwayegamba','karera','kyangyenyi','kibingo'],
         'Sheema': ['sheema','kabwohe', 'rwanama','mashojwa','rushoroza','rushogashoga','kigarama','rwanyinakihaire','katanoga',
                    'kagango','rweibaare','rweigaga'],
@@ -671,7 +677,7 @@ def clean(data):
         'Rukungiri': ['rukungiri','kihihi','rwampuga','mabanga','kanyanyegayegye','-0.853340 +30.017587','bikulungu','kitengyento'],
         'Iganga': ['iganga','namufuma','bulubandi','busembatia','0.840531, 33.498'],
         'Amuria':['amuria','ococai','omoratok'],
-        'Buikwe': ['buikwe','lugazi','nkokonjeru',', njeru','0.472706, 33.157','makonge','wabaale','nkokohjeru','bugoba'],
+        'Buikwe': ['buikwe','lugazi','nkokonjeru',', njeru','0.472706, 33.157','makonge','wabaale','nkokohjeru','bugoba','namalili'],
         'Bugiri': ['bugiri'],
         'Soroti': ['soroti','gweri acuma','nakatunya ward','okuku','oderai','samuk','opiyai','orwadai'],
         'Kagadi':['kagadi','0.907898, 30.883805','mabaale','kihingana'],
@@ -683,7 +689,7 @@ def clean(data):
         'Namayingo': ['namayingo'],
         'Koboko': ['koboko'],
         'Mityana': ['mityana','busunju','kitongo','nakanyenya','kakindu','mbaliga','kikandwa','kannyagoga','kiryokya','mpiriggwa',
-                   'kyesengeze','kawanga','nakitolo','mpirigwa','zigoti','gginzi','lukugga','kiry0kya','bukumula'],
+                   'kyesengeze','kawanga','nakitolo','mpirigwa','zigoti','gginzi','lukugga','kiry0kya','bukumula','busimbi'],
         'Hoima': ['hoima','kiryatete','kigaaga','mukabara','kabaale','kigorobya','kitabona','kasingo','kiryawanga','kijwenge','kiryamboga','kanenankumba',
                  'lusaka upper'],
         'Nakasongola': ['nakasongola','kakooge','rwabyata','kalungi','kiweewa','wabitosi'],
@@ -730,7 +736,7 @@ def clean(data):
         'Alebtong':['alebtong','okoto','olanoamuk'],
         'Kibuku':['kibuku'],
         'Kyotera': ['kyotera','buwenge','mutukula','kakuto','kalisizo','kiwumulo','kabira'],
-        'Jinja': ['jinja','bugembe','kyamagwa','budondo,','karongo','mpumudde','butembe'],
+        'Jinja': ['jinja','bugembe','kyamagwa','budondo,','karongo','mpumudde','butembe','magamaga','kakira','mafubila','namaganga'],
         'Kabarole': ['kabarole','kitesweka','rwenkuba','buhesi','buhesesi','nyamirima','kabonero','kasekero','kyanga','kabagara',
                      'kyeganywa','rweitano','iruhura','kiboota','nyabweya'],
         'Luuka':['luuka'],
@@ -740,14 +746,14 @@ def clean(data):
         'Kikuube': ['kikuube'],
         'Katakwi':['katakwii','katakwi','oleroi','guyaguya'],
         'Ngora': ['ngora','ariet'],
-        'Nakaseke': ['nakaseke','kiwaguzi b','lumpewe','kivumu','bujuubya','magoma','butikwa'],
+        'Nakaseke': ['nakaseke','kiwaguzi b','lumpewe','kivumu','bujuubya','magoma','butikwa','butiikwa','kiwoko','zigula'],
         'Kasanda': ['kasanda'],
         'Obongi':['obongi'],
         'Yumbe': ['yumbe','awoba','yangani','tuliki','ataboo','otche'],
         'Moroto': ['moroto'],
         'Bukedea': ['bukedea','kwarikwari'],
         'Namisindwa': ['namisindwa'],
-        'Butaleja': ['butaleja','buwesa','nakwiga','hisoho'],
+        'Butaleja': ['butaleja','buwesa','nakwiga','hisoho','dumba a'],
         'Butebo': ['butebo'],
         'Bugweri': ['bugweri'],
         'Otuke': ['otuke','barlwala'],
