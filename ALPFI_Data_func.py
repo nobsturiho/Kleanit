@@ -35,7 +35,7 @@ def clean(data):
     data['email_of_borrower'] = data['email_of_borrower'].str.lower()
     data['email_of_borrower'] = data['email_of_borrower'].str.replace(' ','')
     data['email_of_borrower'] = data.apply(lambda row: 'no-email' if len(str(row['email_of_borrower'])) <= 13 else row['email_of_borrower'], axis=1)
-    data['email_of_borrower'] = np.where(data['email_of_borrower'].str[-3:] != 'com', 'no-email', data['email_of_borrower'])
+    data['email_of_borrower'] = np.where(data['email_of_borrower'].str.endswith('.com'), 'no-email', data['email_of_borrower'])
     
     
     
