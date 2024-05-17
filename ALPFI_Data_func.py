@@ -41,6 +41,7 @@ def clean(data):
     
     # #### highest_education_level
     # Define the characters to remove
+    data['highest_education_level']=data['highest_education_level'].astype(str)
     characters_to_remove = ['.', "'", ' ', '-','_']
     
     # Remove the specified characters from each string in the column
@@ -65,8 +66,6 @@ def clean(data):
     
     # Create a new column 'Highest_education_level' and initialize with 'Other'
     data['eductemp'] = 'not_defined'
-    
-    data['highest_education_level']=data['highest_education_level'].astype(str)
     
     for index, row in data.iterrows():
         highest_education_level = row['highest_education_level'].lower()
@@ -512,7 +511,7 @@ def clean(data):
                 'proprietaryservice','butchery','raw materialsbss','spare parts','general supplies','book shop','general commerce',
                 'tradeworking','whole sale','trade and commerce','proprietary trade','tradeother','trad&com','propriet trade',
                 'garments','cosmetics','tradeportfolio','trade 3','timber & wood sales','proprietarytrade','propriettrade',
-                                        'trade trade','trade'],
+                                        'trade trade','trade','hardware'],
         
         'Financial Services': ['banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
         
@@ -531,7 +530,7 @@ def clean(data):
                 'pesticides/chem.fertilize','battle leaf','grocery','oil mill','live stock','other goat','mushroom cultivation',
                                         'tomatoes','tea production','add in produce','irrigation','goat restocking','produce'],
         
-        'Technology': ['technology', 'software', 'hardware'],
+        'Technology': ['technology', 'software'],
 
         'Manufacturing': ['manufactur','factory','productionproduction','production production','proprietarts & crafts', 'handicraft',
                           'engineering workshop','furniture making','bamboo and cane work','jute work','wood products and furniture',
