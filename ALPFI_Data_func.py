@@ -49,6 +49,10 @@ def clean(data):
         data['highest_education_level'] = data['highest_education_level'].str.replace(char, '')
     
     educ_keywords = {
+        'Not Educated': ['ilit','noschooling','peasant','ill','noformal','never','noeducat','noteducat','noteduacted','noschool',
+                         'didnotgo','notqualified','iiiterate','nil','rural','nursary','childhood','none'],
+        'Information Not Available': ['nan','notavailable','unclassified','notgiven','0','notprovided','nottracked'
+                                      ,'unknown','#value!','#ref!','no'],
         'Primary': ['primary','prima','p1','p2','p3','p4','p5','p6','p7','p8','ple','prmary','rimary','prim','primry'],
         'Secondary': ['alevel','olevel','s1','s2','s3','s4','s5','s6','seconadry','uce','uace','senior',
                       'form1','form2','form3','form4','form5','form6','s,4','secodary','advancedlevel',
@@ -57,11 +61,7 @@ def clean(data):
                      'certificate','tartia','illletrate','professor','phd','general','guraduate','master',
                      'institution','professionalmanagement','gradaute','bachelors','teaching','nursing','k2',
                      'grade3tr','literate','gradeiv','undergr','grad','techn','tert','12th',
-                     'hairdressing','certi','gradev','gradeiii','gradeii','gradethree','sixthgrade'],
-        'Information Not Available': ['nan','notavailable','unclassified','notgiven','0','notprovided','nottracked'
-                                      ,'unknown','#value!','#ref!','no'],
-        'Not Educated': ['ilit','noschooling','peasant','ill','noformal','never','noeducat','noteducat','noteduacted','noschool',
-                         'didnotgo','notqualified','iiiterate','nil','rural','nursary','childhood','none'],
+                     'hairdressing','certi','gradev','gradeiii','gradeii','gradethree','sixthgrade']
     }
     
     # Create a new column 'Highest_education_level' and initialize with 'Other'
