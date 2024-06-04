@@ -49,9 +49,9 @@ def clean(data):
         data['highest_education_level'] = data['highest_education_level'].str.replace(char, '')
     
     educ_keywords = {
-        'Primary': ['primary','prima','p1','p2','p3','p4','p5','p6','p7','p8','ple','prmary','rimary','prim'],
+        'Primary': ['primary','prima','p1','p2','p3','p4','p5','p6','p7','p8','ple','prmary','rimary','prim','primry'],
         'Secondary': ['alevel','olevel','s1','s2','s3','s4','s5','s6','seconadry','uce','uace','senior',
-                      'primry','rimary','form1','form2','form3','form4','form5','form6','s,4','secodary','advancedlevel',
+                      'form1','form2','form3','form4','form5','form6','s,4','secodary','advancedlevel',
                       'ordinarylevel','modirate','secon','advanced'],
         'Tertiary': ['teritary','college','university','degree','diploma','graduate','educated','general education',
                      'certificate','tartia','illletrate','professor','phd','general','guraduate','master',
