@@ -358,6 +358,7 @@ def clean(data):
     
     
     # #### Rural - Urban
+    data['Rural_urban'] = data['Rural_urban'].astype(str)
     data['Rural_urban'] = data['Rural_urban'].str.title()
     data['Rural_urban'] = data['Rural_urban'].replace({'City Centre':'Urban','Wandegeya':'Urban','Nakawa':'Urban',
                                                       'Katwe':'Urban','Bukoto':'Urban'}, regex = True)
