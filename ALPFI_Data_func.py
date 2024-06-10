@@ -544,7 +544,7 @@ def clean(data):
         
         'Energy': ['coal','energy','petrolium & gas'],
         
-        'Real Estate': ['rent','construct', 'estate','house renovation','house completion','carpentry','house improveme','home improve',
+        'Real Estate': ['construct', 'estate','house renovation','house completion','carpentry','house improveme','home improve',
                         'building and working','purchaseland','completing housebusines','renovating house','land purchase',
                         'building inspection','completing house','constraction','housing development','land acquisition','brick laying'],
         
