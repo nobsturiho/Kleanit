@@ -496,6 +496,7 @@ def clean(data):
     # #### Sectors
     sector_keywords = {
         'wholesale & retail business':['working capital'],
+        'real Estate': ['rent'],
         'Food & Beverage': ['bakery','confection','fast food','restaurant','baker','cook','bar','disco','beverage'],
         'Other': ['other other','commuinty and social services3','social and other services','commuinty and social services','nan',
                   'purchase of assets','otherworking','otherother','otherportfolio','restructuring of facility','memebership organisations',
@@ -521,7 +522,7 @@ def clean(data):
                     'electricians','marketing and advertisement','import consumer','telecommunications','photography','electricity,lighting',
                     'plumber','house cleaning','decorations'],
         
-        'Health': ['health', 'medical', 'diagnos','drug screening'],
+        'Health': ['health', 'medical', 'diagnos','drug screening','drug shop'],
         'Agriculture & Agro processing': ['agriculture','crops', 'maize','rice', 'agro products','animal', 'farm', 'rearing',
                 'vegetable', 'fish','poultry','coffee','beef','cattle','banana','livestock','agro input','maize','paultry',
                 'sugar cane','diary','fattening','irish','legume','fertilizer','crop products','agri fruits','piggery','seedlings',
