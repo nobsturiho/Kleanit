@@ -121,7 +121,7 @@ def clean(data):
     data['Age'] = data.apply(lambda row: (row['Date_of_loan_issue'] - row['agetemp']).days//365.25 if len(str(row['Age'])) >= 8 
                              else row['Age'], axis=1)
     
-    data['Age'] = pd.to_numeric(data['Age'])
+    data['Age'] = pd.to_numeric(data['Age'], errors = 'coerce')
     data['Age'] = np.where((data['Age'] > 18000), ((data['Date_of_loan_issue'].dt.year) - (1900 + data['Age']//365.25)), data['Age'])
     
     maskold = (data['Age'] >80 ) & (data['Age'] < 18000) & (data['NIN'].notna())
@@ -517,7 +517,7 @@ def clean(data):
         
         'Financial Services': ['banking', 'investment','mobile money','mobilemoney','consumer lending','personal loans and household','banks','saccos'],
         
-        'Services': ['welding','saloon','salon','laundry','mechanic','tailor','print','weaving','proprietary services','phone and fax',
+        'Services': ['weldding','welding','saloon','salon','laundry','mechanic','tailor','print','weaving','proprietary services','phone and fax',
                     'baby care','garages','internet caf','events management','beauty parlour','propriet services','clearing and forwarding',
                     'electricians','marketing and advertisement','import consumer','telecommunications','photography','electricity,lighting',
                     'plumber','house cleaning','decorations'],
