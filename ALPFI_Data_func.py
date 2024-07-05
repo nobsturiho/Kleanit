@@ -183,7 +183,7 @@ def clean(data):
         elif row['lender'] == 'EBO SACCO' or row['lender'] =='FINCA Uganda' or row['lender'] =='Hofokam Limited':
             data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
         
-        elif row['lender'] == "Letshego Uganda" or row['lender'] =="Kyamuhunga People's SACCO" or row['lender'] == "MAMIDECOT":
+        elif row['lender'] == "Letshego Uganda" or row['lender'] =="Kyamuhunga People's SACCO":
             data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
         
         elif row['lender'] == "Mushanga SACCO" or row['lender'] == "Premier Credit" or row['lender'] == "Lyamujungu SACCO":
@@ -216,6 +216,12 @@ def clean(data):
         elif row['lender'] == 'Liberation Community F.':
             data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('2.5', '50').replace('3', '58'))/100
         
+        elif row['lender'] == "MAMIDECOT" or row['lender'] == "MAMIDECOT II":
+            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18', '32'))/100
+        
+        elif row['lender'] == "Millennium SACCO 2012":
+            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('21.6', '37.7'))/100
+            
         else:
             data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
     
@@ -237,22 +243,22 @@ def clean(data):
     
     for index, row in data.iterrows():
         #PFI submits day
-        if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO'or row['lender'] == 'Development Microfinance':
-            data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']//30.5
+        if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO'or row['lender'] == 'Development Microfinance'or row['lender'] == 'Millennium SACCO 2012':
+            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30.5,0)
         
         #PFI that submit weeks
         elif row['lender'] == 'Finfort' or row['lender'] =='Pride II' or row['lender'] =='Pride Microfinance Ltd':
-            data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']//(30/7)
+            data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']/(30/7)
         
         #flow Uganda
         elif row['lender'] == 'Flow Uganda' or row['lender'] == 'KAMRO Capital':
             data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
         
         elif (row['lender'] == 'Hofokam Limited') & (row['Tenure_of_loan'] >36):
-            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
+            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30, 2)
         
         elif (row['lender'] == 'Liberation Community F.') & (row['Loan_term_value']=='Weeks'):
-            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(4), 2)
+            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/4, 2)
     
     
     # #### Loan type
