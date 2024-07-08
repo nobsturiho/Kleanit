@@ -8,26 +8,25 @@ Created on Wed May  1 12:26:23 2024
 import numpy as np
 import pandas as pd
 import datetime
-
-
-
+import streamlit as st
 
 def clean(data):
-    # ####name_of_borrower to sentence case
-    data['name_of_borrower']=data['name_of_borrower'].str.title()
-    
-    
-    
-    # ####Line_of_business to sentence case
-    data['Line_of_business'] = data['Line_of_business'].str.title()
-    
-    
-    # ####Loan_product_description to sentence case
-    data['Loan_product_description'] = data['Loan_product_description'].str.title()
-    
-    # Insert 'Line_of_business' column next to 'Loan_product_description'
-    data.insert(data.columns.get_loc('Loan_product_description')+1, 'Line_of_business', data.pop('Line_of_business'))
-    
+    try:
+        # ####name_of_borrower to sentence case
+        data['name_of_borrower']=data['name_of_borrower'].str.title()
+        
+        
+        # ####Line_of_business to sentence case
+        data['Line_of_business'] = data['Line_of_business'].str.title()
+        
+        
+        # ####Loan_product_description to sentence case
+        data['Loan_product_description'] = data['Loan_product_description'].str.title()
+        
+        # Insert 'Line_of_business' column next to 'Loan_product_description'
+        data.insert(data.columns.get_loc('Loan_product_description')+1, 'Line_of_business', data.pop('Line_of_business'))
+    except Exception as e:
+        st.write(e)
     
     
     # #### email_of_borrower
