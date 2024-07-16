@@ -28,474 +28,506 @@ def clean(data):
     except Exception as e:
         st.write(e)
     
+    try:
+        # #### email_of_borrower
+        data['email_of_borrower'] = data['email_of_borrower'].fillna('no-email')
+        data['email_of_borrower'] = data['email_of_borrower'].str.lower()
+        data['email_of_borrower'] = data['email_of_borrower'].str.replace(' ','')
+        data['email_of_borrower'] = data.apply(lambda row: 'no-email' if len(str(row['email_of_borrower'])) <= 11 else row['email_of_borrower'], axis=1)
+        data['email_of_borrower'] = np.where(data['email_of_borrower'].str.endswith('.com'), data['email_of_borrower'],'no-email')
     
-    # #### email_of_borrower
-    data['email_of_borrower'] = data['email_of_borrower'].fillna('no-email')
-    data['email_of_borrower'] = data['email_of_borrower'].str.lower()
-    data['email_of_borrower'] = data['email_of_borrower'].str.replace(' ','')
-    data['email_of_borrower'] = data.apply(lambda row: 'no-email' if len(str(row['email_of_borrower'])) <= 11 else row['email_of_borrower'], axis=1)
-    data['email_of_borrower'] = np.where(data['email_of_borrower'].str.endswith('.com'), data['email_of_borrower'],'no-email')
-    
-    
+    except Exception as e:
+        st.write(e)
     
     # #### highest_education_level
     # Define the characters to remove
-    data['highest_education_level']=data['highest_education_level'].astype(str)
-    characters_to_remove = ['.', "'", ' ', '-','_']
-    
-    # Remove the specified characters from each string in the column
-    for char in characters_to_remove:
-        data['highest_education_level'] = data['highest_education_level'].str.replace(char, '')
-    
-    educ_keywords = {
-        'Not Educated': ['ilit','noschooling','peasant','ill','noformal','never','noeducat','noteducat','noteduacted','noschool',
-                         'didnotgo','notqualified','iiiterate','nil','rural','nursary','childhood','none'],
-        'Information Not Available': ['nan','notavailable','unclassified','notgiven','0','notprovided','nottracked'
-                                      ,'unknown','#value!','#ref!','no'],
-        'Primary': ['primary','prima','p1','p2','p3','p4','p5','p6','p7','p8','ple','prmary','rimary','prim','primry'],
-        'Secondary': ['alevel','olevel','s1','s2','s3','s4','s5','s6','seconadry','uce','uace','senior',
-                      'form1','form2','form3','form4','form5','form6','s,4','secodary','advancedlevel',
-                      'ordinarylevel','modirate','secon','advanced'],
-        'Tertiary': ['teritary','college','university','degree','diploma','graduate','educated','general education',
-                     'certificate','tartia','illletrate','professor','phd','general','guraduate','master',
-                     'institution','professionalmanagement','gradaute','bachelors','teaching','nursing','k2',
-                     'grade3tr','literate','gradeiv','undergr','grad','techn','tert','12th',
-                     'hairdressing','certi','gradev','gradeiii','gradeii','gradethree','sixthgrade']
-    }
-    
-    # Create a new column 'Highest_education_level' and initialize with 'Other'
-    data['eductemp'] = 'not_defined'
-    
-    for index, row in data.iterrows():
-        highest_education_level = row['highest_education_level'].lower()
+    try:
+        data['highest_education_level']=data['highest_education_level'].astype(str)
+        characters_to_remove = ['.', "'", ' ', '-','_']
         
+        # Remove the specified characters from each string in the column
+        for char in characters_to_remove:
+            data['highest_education_level'] = data['highest_education_level'].str.replace(char, '')
         
-        # Check for each education level's keywords in the 'Highest_education_level' column
-        for educ, keywords in educ_keywords.items():
-            for keyword in keywords:
-                if keyword in highest_education_level:
-                    data.at[index, 'eductemp'] = educ
-                    break  # Exit the loop once a highest_education_level is identified for the current row
+        educ_keywords = {
+            'Not Educated': ['ilit','noschooling','peasant','ill','noformal','never','noeducat','noteducat','noteduacted','noschool',
+                             'didnotgo','notqualified','iiiterate','nil','rural','nursary','childhood','none'],
+            'Information Not Available': ['nan','notavailable','unclassified','notgiven','0','notprovided','nottracked'
+                                          ,'unknown','#value!','#ref!','no'],
+            'Primary': ['primary','prima','p1','p2','p3','p4','p5','p6','p7','p8','ple','prmary','rimary','prim','primry'],
+            'Secondary': ['alevel','olevel','s1','s2','s3','s4','s5','s6','seconadry','uce','uace','senior',
+                          'form1','form2','form3','form4','form5','form6','s,4','secodary','advancedlevel',
+                          'ordinarylevel','modirate','secon','advanced'],
+            'Tertiary': ['teritary','college','university','degree','diploma','graduate','educated','general education',
+                         'certificate','tartia','illletrate','professor','phd','general','guraduate','master',
+                         'institution','professionalmanagement','gradaute','bachelors','teaching','nursing','k2',
+                         'grade3tr','literate','gradeiv','undergr','grad','techn','tert','12th',
+                         'hairdressing','certi','gradev','gradeiii','gradeii','gradethree','sixthgrade']
+        }
+        
+        # Create a new column 'Highest_education_level' and initialize with 'Other'
+        data['eductemp'] = 'not_defined'
+        
+        for index, row in data.iterrows():
+            highest_education_level = row['highest_education_level'].lower()
+            
+            
+            # Check for each education level's keywords in the 'Highest_education_level' column
+            for educ, keywords in educ_keywords.items():
+                for keyword in keywords:
+                    if keyword in highest_education_level:
+                        data.at[index, 'eductemp'] = educ
+                        break  # Exit the loop once a highest_education_level is identified for the current row
+        
+        data.drop(columns = ['highest_education_level'], inplace = True)
+        data.rename(columns = {'eductemp':'highest_education_level'}, inplace = True)
+        
+        # Insert 'highest_education_level' column next to 'email_of_borrower'
+        data.insert(data.columns.get_loc('email_of_borrower')+1, 'highest_education_level', data.pop('highest_education_level'))
+    except Exception as e:
+        st.write(e)
     
-    data.drop(columns = ['highest_education_level'], inplace = True)
-    data.rename(columns = {'eductemp':'highest_education_level'}, inplace = True)
-    
-    # Insert 'highest_education_level' column next to 'email_of_borrower'
-    data.insert(data.columns.get_loc('email_of_borrower')+1, 'highest_education_level', data.pop('highest_education_level'))
-    
-    
-    
+    try:
     # #### employment_status
-    data['employment_status'] = 'Self Employed'
+        data['employment_status'] = 'Self Employed'
+        
+        
+        
+        # #### Gender
+        data['Gender'] = data['Gender'].str.title()
+        data['Gender'] = data['Gender'].str.replace(' ','')
+        data['Gender'] = data['Gender'].replace({'F':'Female', 'M':'Male'})
+        data['Gender'] = np.where((data['Gender'] == 'Male') | (data['Gender'] == 'Female'), data['Gender'], data['NIN'].str[1])
+        data['Gender'] = data['Gender'].replace({'F':'Female', 'M':'Male'})
     
+    except Exception as e:
+        st.write(e)
     
-    
-    # #### Gender
-    data['Gender'] = data['Gender'].str.title()
-    data['Gender'] = data['Gender'].str.replace(' ','')
-    data['Gender'] = data['Gender'].replace({'F':'Female', 'M':'Male'})
-    data['Gender'] = np.where((data['Gender'] == 'Male') | (data['Gender'] == 'Female'), data['Gender'], data['NIN'].str[1])
-    data['Gender'] = data['Gender'].replace({'F':'Female', 'M':'Male'})
-    
-    
-    
+    try:
     # #### Date_of_loan_issue
-    data['issuetemp'] = pd.to_numeric(data['Date_of_loan_issue'],errors = 'coerce')
-    mask = data['issuetemp'] > 40000
-    data.loc[mask, 'Date_of_loan_issue'] = datetime.datetime(1900, 1, 1) + pd.to_timedelta(data.loc[mask, 'issuetemp'] - 2, unit='D')
-    data['Date_of_loan_issue'] = pd.to_datetime(data['Date_of_loan_issue'], format='mixed')
+        data['issuetemp'] = pd.to_numeric(data['Date_of_loan_issue'],errors = 'coerce')
+        mask = data['issuetemp'] > 40000
+        data.loc[mask, 'Date_of_loan_issue'] = datetime.datetime(1900, 1, 1) + pd.to_timedelta(data.loc[mask, 'issuetemp'] - 2, unit='D')
+        data['Date_of_loan_issue'] = pd.to_datetime(data['Date_of_loan_issue'], format='mixed')
+    
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Date_of_birth
+        data['Date_of_birth'] = data['Date_of_birth'].replace({'2YRS':'54'})
+        mask = (data['Age'].isna())
+        data.loc[mask, 'Age'] = data.loc[mask, 'Date_of_birth']
+        data['Date_of_birth'] = pd.to_datetime(data['Date_of_birth'], format ='mixed', errors = 'coerce')
+    except Exception as e:
+        st.write(e)
     
     
+    try:
+        # #### Age
+        data['agetemp'] = pd.to_datetime(data['Age'], format = 'mixed', errors = 'coerce')
+        data['Age'] = data.apply(lambda row: (row['Date_of_loan_issue'] - row['agetemp']).days//365.25 if len(str(row['Age'])) >= 8 
+                                 else row['Age'], axis=1)
+        
+        data['Age'] = pd.to_numeric(data['Age'], errors = 'coerce')
+        data['Age'] = np.where((data['Age'] > 18000), ((data['Date_of_loan_issue'].dt.year) - (1900 + data['Age']//365.25)), data['Age'])
+        
+        maskold = (data['Age'] >80 ) & (data['Age'] < 18000) & (data['NIN'].notna())
+        NINdob = pd.to_numeric(data['NIN'].str[2:4], errors = 'coerce')
+        data['Age'] = np.where(maskold, data['Date_of_loan_issue'].dt.year - (1900 + NINdob), data['Age'])
+        
+        mask3 = (((data['Age']<=18)|(data['Age'].isna())) & (NINdob < 20))
+        data['Age'] = np.where(mask3, data['Date_of_loan_issue'].dt.year - (2000 + NINdob), data['Age'])
+        
+        mask4 = (((data['Age']<= 18)|(data['Age'].isna())) & (NINdob > 20))
+        data['Age'] = np.where(mask4, data['Date_of_loan_issue'].dt.year - (1900 + NINdob), data['Age'])
     
-    # #### Date_of_birth
-    data['Date_of_birth'] = data['Date_of_birth'].replace({'2YRS':'54'})
-    mask = (data['Age'].isna())
-    data.loc[mask, 'Age'] = data.loc[mask, 'Date_of_birth']
-    data['Date_of_birth'] = pd.to_datetime(data['Date_of_birth'], format ='mixed', errors = 'coerce')
+    except Exception as e:
+        st.write(e)
     
-    
-    
-    # #### Age
-    data['agetemp'] = pd.to_datetime(data['Age'], format = 'mixed', errors = 'coerce')
-    data['Age'] = data.apply(lambda row: (row['Date_of_loan_issue'] - row['agetemp']).days//365.25 if len(str(row['Age'])) >= 8 
-                             else row['Age'], axis=1)
-    
-    data['Age'] = pd.to_numeric(data['Age'], errors = 'coerce')
-    data['Age'] = np.where((data['Age'] > 18000), ((data['Date_of_loan_issue'].dt.year) - (1900 + data['Age']//365.25)), data['Age'])
-    
-    maskold = (data['Age'] >80 ) & (data['Age'] < 18000) & (data['NIN'].notna())
-    NINdob = pd.to_numeric(data['NIN'].str[2:4], errors = 'coerce')
-    data['Age'] = np.where(maskold, data['Date_of_loan_issue'].dt.year - (1900 + NINdob), data['Age'])
-    
-    mask3 = (((data['Age']<=18)|(data['Age'].isna())) & (NINdob < 20))
-    data['Age'] = np.where(mask3, data['Date_of_loan_issue'].dt.year - (2000 + NINdob), data['Age'])
-    
-    mask4 = (((data['Age']<= 18)|(data['Age'].isna())) & (NINdob > 20))
-    data['Age'] = np.where(mask4, data['Date_of_loan_issue'].dt.year - (1900 + NINdob), data['Age'])
-    
-    
-    
-    # #### Age_Group
-    data["Age_Group"] = np.where(data["Age"] > 35, "Non Youth", "Youth")
-    
-    #Place the agegroup column next to the Age column
-    data.insert(data.columns.get_loc('Age')+1, 'Age_Group', data.pop('Age_Group'))
-    
+    try:
+        # #### Age_Group
+        data["Age_Group"] = np.where(data["Age"] > 35, "Non Youth", "Youth")
+        
+        #Place the agegroup column next to the Age column
+        data.insert(data.columns.get_loc('Age')+1, 'Age_Group', data.pop('Age_Group'))
+    except Exception as e:
+        st.write(e)
     
     
     # #### Loan_amount
     #Covert Loan amount to Integer
     try:
+        data['Loan_amount'] = data['Loan_amount'].astype(str)
         data['Loan_amount'] = data['Loan_amount'].str.replace(',','')
-    except Exception:
-        print('')
-        
-    data['Loan_amount'] = pd.to_numeric(data['Loan_amount'],errors = 'coerce')
+        data['Loan_amount'] = pd.to_numeric(data['Loan_amount'],errors = 'coerce')
+    except Exception as e:
+        st.write(e)
     
-    
-    
-    # #### Date_of_repayments_commencement
-    data['repaytemp'] = pd.to_numeric(data['Date_of_repayments_commencement'],errors = 'coerce')
-    
-    mask = data['repaytemp'] > 40000
-    data.loc[mask, 'Date_of_repayments_commencement'] = datetime.datetime(1900, 1, 1) + pd.to_timedelta(data.loc[mask, 'repaytemp'] - 2, unit='D')
-    
-    data['Date_of_repayments_commencement'] = pd.to_datetime(data['Date_of_repayments_commencement'], format='mixed', errors = 'coerce')
-    
-    
-    
-    # #### Interest_rate
-    data['Interest_rate'] = data['Interest_rate'].astype(str)
-    data['Interest_rate'] = data['Interest_rate'].str.replace('per month','')
-    data['Interest_rate'] = data['Interest_rate'].str.replace('%','')
-    data['Interest_rate'] = data['Interest_rate'].replace('1.6','16')
-    
-    data['Interest_red_bal'] = pd.to_numeric(data['Interest_rate'], errors = 'coerce')
-    
-    for index, row in data.iterrows():
-        if row['lender'] == 'ASA Microfinance':
-            data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']*12/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce')
-        
-        elif row['lender'] == 'Rukiga SACCO' or row['lender'] =='Vision Fund'or row['lender'] =='Butuuro SACCO':
-            data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']*0.12
-        
-        elif row['lender'] == 'EBO SACCO' or row['lender'] =='FINCA Uganda' or row['lender'] =='Hofokam Limited':
-            data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
-        
-        elif row['lender'] == "Letshego Uganda" or row['lender'] =="Kyamuhunga People's SACCO":
-            data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
-        
-        elif row['lender'] == "Mushanga SACCO" or row['lender'] == "Premier Credit" or row['lender'] == "Lyamujungu SACCO":
-            data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
-            
-        elif row['lender'] == 'Finfort': 
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('4.0', '87').replace('5.0', '87').replace('4.5', '87'))/100
-        
-        elif row['lender'] == 'Flow Uganda':
-            data.at[index, 'Interest_red_bal'] = round(round(row['Interest_red_bal']/row['Loan_amount'],3)*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
-        
-        elif row['lender'] == "Nile Microfinance":
-            data.at[index, 'Interest_red_bal'] = 0.5
-            
-        elif row['lender'] == "UGAFODE Microfinance":
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('51.44', '39'))/100
-        
-        elif row['lender'] == "Pride II" or row['lender'] =='Pride Microfinance Ltd':
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18.0', '31.5').replace('14.5', '25.5'))/100
-
-        elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] > 100:
-            data.at[index, 'Interest_red_bal'] = round(round(row['Interest_red_bal']/row['Loan_amount'],3)*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
-       
-        elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] < 100:
-            data.at[index, 'Interest_red_bal'] = round(row['Interest_red_bal']*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
-        
-        elif row['lender'] == 'Development Microfinance':
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('30', '50'))/100
-        
-        elif row['lender'] == 'Liberation Community F.':
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('2.5', '50').replace('3', '58'))/100
-        
-        elif row['lender'] == "MAMIDECOT" or row['lender'] == "MAMIDECOT II":
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18', '32'))/100
-        
-        elif row['lender'] == "Millennium SACCO 2012":
-            data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('21.6', '37.7'))/100
-            
-        else:
-            data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
-    
-    # Insert 'Interest_red_bal' column next to 'Interest_rate'
-    data.insert(data.columns.get_loc('Interest_rate'), 'Interest_red_bal', data.pop('Interest_red_bal'))
-    
-    
-    
-    # #### Tenure_of_loan
-    data['Tenure_of_loan'] = data['Tenure_of_loan'].astype(str)
-    data['Tenure_of_loan'] = data['Tenure_of_loan'].str.lower()
-    data['Tenure_of_loan'] = data['Tenure_of_loan'].replace({'4 quarter(s)':'12'})
-    
-    characters_to_remove = ['month(s)', "months", 'monthly', 'days','_']
-    for char in characters_to_remove:
-        data['Tenure_of_loan'] = data['Tenure_of_loan'].str.replace(char, '')
-    
-    data['Tenure_of_loan'] = pd.to_numeric(data['Tenure_of_loan'], errors = 'coerce')
-    
-    for index, row in data.iterrows():
-        #PFI submits day
-        if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO'or row['lender'] == 'Development Microfinance'or row['lender'] == 'Millennium SACCO 2012':
-            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30.5,0)
-        
-        #PFI that submit weeks
-        elif row['lender'] == 'Finfort' or row['lender'] =='Pride II' or row['lender'] =='Pride Microfinance Ltd':
-            data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']/(30/7)
-        
-        #flow Uganda
-        elif row['lender'] == 'Flow Uganda' or row['lender'] == 'KAMRO Capital':
-            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
-        
-        elif (row['lender'] == 'Hofokam Limited') & (row['Tenure_of_loan'] >36):
-            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30, 2)
-        
-        elif (row['lender'] == 'Liberation Community F.') & (row['Loan_term_value']=='Weeks'):
-            data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/4, 2)
-    
-    
-    # #### Loan type
-    data['Loan_type'] = data['Loan_type'].str.title()
-    
-    characters_to_remove = ['Client', "Customer", 'Lending', 'Loan',' ']
-    for char in characters_to_remove:
-        data['Loan_type'] = data['Loan_type'].str.replace(char, '')
-    
-    data['Loan_type'] = data['Loan_type'].replace({'Swl':'Individual', 'New':'Individual','Sme':'Individual','Employee':'Individual','Small':'Individual'},regex=True)
-    data['Loan_type'] = data['Loan_type'].replace({'Business-Mserf':'Individual','Agriculture-Mserf':'Individual'},regex=True)
-    data['Loan_type'] = data['Loan_type'].replace({'I':'Individual','G':'Group','C':'Group','Jlg':'Group'})
-    data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
-                                                                             str[-10:] =='Individual'),'Individual',data['Loan_type']) 
-    
-    data['Loan_type'] = np.where((data['lender']=='KAMRO Capital'), 'Individual', data['Loan_type'])
-    
-    data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
-                                                                             str[-5:] =='Group'),'Group',data['Loan_type']) 
-    
-    
-    
-    # #### Loan Term Value
-    data['Loan_term_value'] = 'Monthly'
-    
-    
-    
-    # #### Loan Purpose
-    data['Loan_purpose'] = data['Loan_purpose'].str.title()
-    # Insert 'Loan purpose' column next to 'Line of business'
-    data.insert(data.columns.get_loc('Line_of_business')+1, 'Loan_purpose', data.pop('Loan_purpose'))
-    
-    
-    
-    # #### Loan_cycle
-    
-    data['Loan_cycle'] = pd.to_numeric(data['Loan_cycle'], errors = 'coerce')
-    
-    
-    # #### Location_of_borrower
-    data['Location_of_borrower'] = data['Location_of_borrower'].str.title()
-    
-    
-    # #### Expected_number_of_installments
-    data['Expected_number_of_installments'] = data['Expected_number_of_installments'].astype(str)
-    data['ENI_temp'] = data['Expected_number_of_installments']
     try:
+        # #### Date_of_repayments_commencement
+        data['repaytemp'] = pd.to_numeric(data['Date_of_repayments_commencement'],errors = 'coerce')
+        
+        mask = data['repaytemp'] > 40000
+        data.loc[mask, 'Date_of_repayments_commencement'] = datetime.datetime(1900, 1, 1) + pd.to_timedelta(data.loc[mask, 'repaytemp'] - 2, unit='D')
+        
+        data['Date_of_repayments_commencement'] = pd.to_datetime(data['Date_of_repayments_commencement'], format='mixed', errors = 'coerce')
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Interest_rate
+        data['Interest_rate'] = data['Interest_rate'].astype(str)
+        data['Interest_rate'] = data['Interest_rate'].str.replace('per month','')
+        data['Interest_rate'] = data['Interest_rate'].str.replace('%','')
+        data['Interest_rate'] = data['Interest_rate'].replace('1.6','16')
+    
+        data['Interest_red_bal'] = pd.to_numeric(data['Interest_rate'], errors = 'coerce')
+        
+        for index, row in data.iterrows():
+            if row['lender'] == 'ASA Microfinance':
+                data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']*12/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce')
+            
+            elif row['lender'] == 'Rukiga SACCO' or row['lender'] =='Vision Fund'or row['lender'] =='Butuuro SACCO':
+                data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']*0.12
+            
+            elif row['lender'] == 'EBO SACCO' or row['lender'] =='FINCA Uganda' or row['lender'] =='Hofokam Limited':
+                data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
+            
+            elif row['lender'] == "Letshego Uganda" or row['lender'] =="Kyamuhunga People's SACCO":
+                data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
+            
+            elif row['lender'] == "Mushanga SACCO" or row['lender'] == "Premier Credit" or row['lender'] == "Lyamujungu SACCO":
+                data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
+                
+            elif row['lender'] == 'Finfort': 
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('4.0', '87').replace('5.0', '87').replace('4.5', '87'))/100
+            
+            elif row['lender'] == 'Flow Uganda':
+                data.at[index, 'Interest_red_bal'] = round(round(row['Interest_red_bal']/row['Loan_amount'],3)*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
+            
+            elif row['lender'] == "Nile Microfinance":
+                data.at[index, 'Interest_red_bal'] = 0.5
+                
+            elif row['lender'] == "UGAFODE Microfinance":
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('51.44', '39'))/100
+            
+            elif row['lender'] == "Pride II" or row['lender'] =='Pride Microfinance Ltd':
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18.0', '31.5').replace('14.5', '25.5'))/100
+    
+            elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] > 100:
+                data.at[index, 'Interest_red_bal'] = round(round(row['Interest_red_bal']/row['Loan_amount'],3)*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
+           
+            elif row['lender'] == 'KAMRO Capital' and row['Interest_red_bal'] < 100:
+                data.at[index, 'Interest_red_bal'] = round(row['Interest_red_bal']*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
+            
+            elif row['lender'] == 'Development Microfinance':
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('30', '50'))/100
+            
+            elif row['lender'] == 'Liberation Community F.':
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('2.5', '50').replace('3', '58'))/100
+            
+            elif row['lender'] == "MAMIDECOT" or row['lender'] == "MAMIDECOT II":
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18', '32'))/100
+            
+            elif row['lender'] == "Millennium SACCO 2012":
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('21.6', '37.7'))/100
+                
+            else:
+                data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
+        
+        # Insert 'Interest_red_bal' column next to 'Interest_rate'
+        data.insert(data.columns.get_loc('Interest_rate'), 'Interest_red_bal', data.pop('Interest_red_bal'))
+        
+    except Exception as e:
+        st.write(e)
+        
+        
+    try:
+        # #### Tenure_of_loan
+        data['Tenure_of_loan'] = data['Tenure_of_loan'].astype(str)
+        data['Tenure_of_loan'] = data['Tenure_of_loan'].str.lower()
+        data['Tenure_of_loan'] = data['Tenure_of_loan'].replace({'4 quarter(s)':'12'})
+        
+        characters_to_remove = ['month(s)', "months", 'monthly', 'days','_']
+        for char in characters_to_remove:
+            data['Tenure_of_loan'] = data['Tenure_of_loan'].str.replace(char, '')
+        
+        data['Tenure_of_loan'] = pd.to_numeric(data['Tenure_of_loan'], errors = 'coerce')
+        
+        for index, row in data.iterrows():
+            #PFI submits day
+            if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO'or row['lender'] == 'Development Microfinance'or row['lender'] == 'Millennium SACCO 2012':
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30.5,0)
+            
+            #PFI that submit weeks
+            elif row['lender'] == 'Finfort' or row['lender'] =='Pride II' or row['lender'] =='Pride Microfinance Ltd':
+                data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']/(30/7)
+            
+            #flow Uganda
+            elif row['lender'] == 'Flow Uganda' or row['lender'] == 'KAMRO Capital':
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
+            
+            elif (row['lender'] == 'Hofokam Limited') & (row['Tenure_of_loan'] >36):
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30, 2)
+            
+            elif (row['lender'] == 'Liberation Community F.') & (row['Loan_term_value']=='Weeks'):
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/4, 2)
+    
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Loan type
+        data['Loan_type'] = data['Loan_type'].str.title()
+        
+        characters_to_remove = ['Client', "Customer", 'Lending', 'Loan',' ']
+        for char in characters_to_remove:
+            data['Loan_type'] = data['Loan_type'].str.replace(char, '')
+        
+        data['Loan_type'] = data['Loan_type'].replace({'Swl':'Individual', 'New':'Individual','Sme':'Individual','Employee':'Individual','Small':'Individual'},regex=True)
+        data['Loan_type'] = data['Loan_type'].replace({'Business-Mserf':'Individual','Agriculture-Mserf':'Individual'},regex=True)
+        data['Loan_type'] = data['Loan_type'].replace({'I':'Individual','G':'Group','C':'Group','Jlg':'Group'})
+        data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
+                                                                                 str[-10:] =='Individual'),'Individual',data['Loan_type']) 
+        
+        data['Loan_type'] = np.where((data['lender']=='KAMRO Capital'), 'Individual', data['Loan_type'])
+        
+        data['Loan_type'] = np.where((data['lender']=='UGAFODE Microfinance') & (data['Loan_product_name'].
+       
+                                                                                 str[-5:] =='Group'),'Group',data['Loan_type']) 
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Loan Term Value
+        data['Loan_term_value'] = 'Monthly'
+        
+        
+        
+        # #### Loan Purpose
+        data['Loan_purpose'] = data['Loan_purpose'].str.title()
+        # Insert 'Loan purpose' column next to 'Line of business'
+        data.insert(data.columns.get_loc('Line_of_business')+1, 'Loan_purpose', data.pop('Loan_purpose'))
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Loan_cycle
+        
+        data['Loan_cycle'] = pd.to_numeric(data['Loan_cycle'], errors = 'coerce')
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Location_of_borrower
+        data['Location_of_borrower'] = data['Location_of_borrower'].str.title()
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Expected_number_of_installments
+        data['Expected_number_of_installments'] = data['Expected_number_of_installments'].astype(str)
+        data['ENI_temp'] = data['Expected_number_of_installments']
         data['Expected_number_of_installments'] = data['Expected_number_of_installments'].str.lower()
         data['Expected_number_of_installments'] = data['Expected_number_of_installments'].str.replace("month(s)",'')
-    except Exception:
-        print('')
-        
-    data['Expected_number_of_installments'] = data['Expected_number_of_installments'].replace({"4 quarter(s)":'12'})
-    data['Expected_number_of_installments'] = data['Expected_number_of_installments'].replace({"months":"","monthly":''},regex=True)
-    
-    data['Expected_number_of_installments'] = np.where((data['lender']=='ASA Microfinance') & (pd.to_numeric(data['Expected_number_of_installments'],
-                    errors ='coerce')>1000),'16', data['Expected_number_of_installments'])
-    
-    data['Expected_number_of_installments'] = np.where((data['lender']=='Mushanga SACCO') & (pd.to_numeric(data['Expected_number_of_installments'],
-                                errors ='coerce')>1000),data['Expected_monthly_installment'], data['Expected_number_of_installments'])
 
-    
-    data['Expected_number_of_installments'] = np.where(((data['lender']=='Nile Microfinance') | (data['lender']=='Butuuro SACCO') | (data['lender']=='Vision Fund')) &
-                    (pd.to_numeric(data['Expected_number_of_installments'],errors ='coerce')>1000),data['Tenure_of_loan'], data['Expected_number_of_installments'])
-    
-    data['Expected_number_of_installments'] = round(pd.to_numeric(data['Expected_number_of_installments'], errors = 'coerce'),0).astype('Int64')
-    
-    
-    
-    # #### Expected_monthly_installment
-    data['Expected_monthly_installment'] = data['Expected_monthly_installment'].astype(str)
-    data['Expected_monthly_installment'] = np.where((data['lender']=='Mushanga SACCO') & (pd.to_numeric(data['ENI_temp'], errors ='coerce')>1000), 
-                                                    data['ENI_temp'], data['Expected_monthly_installment'])
-    
-    data['Expected_monthly_installment'] = pd.to_numeric(data['Expected_monthly_installment'].str.replace(',',''), errors = 'coerce')
-    
-    data['Expected_monthly_installment'] = np.where(data['lender']=='Flow Uganda', data['Loan_amount'] + pd.to_numeric(data['Interest_rate'], 
-                                                                                errors = 'coerce'),data['Expected_monthly_installment'])
-    data['Expected_monthly_installment'] = np.where(data['Expected_monthly_installment']<100, '', data['Expected_monthly_installment'])
-    
-    data['Expected_monthly_installment'] = round(pd.to_numeric(data['Expected_monthly_installment'], errors='coerce'),0).astype('Int64')
-    
-    
-    
-    # #### Number_of_employees
-    data['Number_of_employees'] = data['Number_of_employees'].astype(str)
-    try:
-        data['Number_of_employees'] = data['Number_of_employees'].str.title()
-    except Exception:
-        print('')
-    
-    characters_to_remove = ['   -',' ','Employees','Employee']
-    for char in characters_to_remove:
-        data['Number_of_employees'] = data['Number_of_employees'].str.replace(char, '')
         
-    data['Number_of_employees'] = data['Number_of_employees'].replace({'None':'0','No':'','2-4':'3','5-15':'10',"16-30":'23',
-                                        "tAvailable":'',"Notavailable":'',"B":'',"02-Apr":'3',"31-45":'38',"May-15":'',"Tgiven":'',"46-50":'48'},regex=True)
+        data['Expected_number_of_installments'] = data['Expected_number_of_installments'].replace({"4 quarter(s)":'12'})
+        data['Expected_number_of_installments'] = data['Expected_number_of_installments'].replace({"months":"","monthly":''},regex=True)
+        
+        data['Expected_number_of_installments'] = np.where((data['lender']=='ASA Microfinance') & (pd.to_numeric(data['Expected_number_of_installments'],
+                        errors ='coerce')>1000),'16', data['Expected_number_of_installments'])
+        
+        data['Expected_number_of_installments'] = np.where((data['lender']=='Mushanga SACCO') & (pd.to_numeric(data['Expected_number_of_installments'],
+                                    errors ='coerce')>1000),data['Expected_monthly_installment'], data['Expected_number_of_installments'])
     
-    data['Number_of_employees'] = np.where((pd.to_numeric(data['Number_of_employees'], errors='coerce')>100),'', data['Number_of_employees'])
+        
+        data['Expected_number_of_installments'] = np.where(((data['lender']=='Nile Microfinance') | (data['lender']=='Butuuro SACCO') | (data['lender']=='Vision Fund')) &
+                        (pd.to_numeric(data['Expected_number_of_installments'],errors ='coerce')>1000),data['Tenure_of_loan'], data['Expected_number_of_installments'])
+        
+        data['Expected_number_of_installments'] = round(pd.to_numeric(data['Expected_number_of_installments'], errors = 'coerce'),0).astype('Int64')
+    except Exception as e:
+        st.write(e)
     
-    data['Number_of_employees'] = round(pd.to_numeric(data['Number_of_employees'], errors = 'coerce'),0).astype("Int64")
-    
-    
-    
-    # #### Rural - Urban
-    data['Rural_urban'] = data['Rural_urban'].astype(str)
-    data['Rural_urban'] = data['Rural_urban'].str.title()
-    data['Rural_urban'] = data['Rural_urban'].replace({'City Centre':'Urban','Wandegeya':'Urban','Nakawa':'Urban',
-                                                      'Katwe':'Urban','Bukoto':'Urban'}, regex = True)
-    
-    characters_to_remove = ['Semi',' ']
-    for char in characters_to_remove:
-        data['Rural_urban'] = data['Rural_urban'].str.replace(char, '')
-    
-    data['Rural_urban'] = np.where((data['Rural_urban'] == 'Rural') | (data['Rural_urban'] == 'Urban'), data['Rural_urban'], '')
-    
-    
-    
-    # #### Number_of_youth_employees	
-    data['Number_of_youth_employees'] = data['Number_of_youth_employees'].astype(str)
     try:
+        # #### Expected_monthly_installment
+        data['Expected_monthly_installment'] = data['Expected_monthly_installment'].astype(str)
+        data['Expected_monthly_installment'] = np.where((data['lender']=='Mushanga SACCO') & (pd.to_numeric(data['ENI_temp'], errors ='coerce')>1000), 
+                                                        data['ENI_temp'], data['Expected_monthly_installment'])
+        
+        data['Expected_monthly_installment'] = pd.to_numeric(data['Expected_monthly_installment'].str.replace(',',''), errors = 'coerce')
+        
+        data['Expected_monthly_installment'] = np.where(data['lender']=='Flow Uganda', data['Loan_amount'] + pd.to_numeric(data['Interest_rate'], 
+                                                                                    errors = 'coerce'),data['Expected_monthly_installment'])
+        data['Expected_monthly_installment'] = np.where(data['Expected_monthly_installment']<100, '', data['Expected_monthly_installment'])
+        
+        data['Expected_monthly_installment'] = round(pd.to_numeric(data['Expected_monthly_installment'], errors='coerce'),0).astype('Int64')
+    except Exception as e:
+        st.write(e)
+    
+    try:
+    # #### Number_of_employees
+        data['Number_of_employees'] = data['Number_of_employees'].astype(str)
+        data['Number_of_employees'] = data['Number_of_employees'].str.title()
+    
+        characters_to_remove = ['   -',' ','Employees','Employee']
+        for char in characters_to_remove:
+            data['Number_of_employees'] = data['Number_of_employees'].str.replace(char, '')
+            
+        data['Number_of_employees'] = data['Number_of_employees'].replace({'None':'0','No':'','2-4':'3','5-15':'10',"16-30":'23',
+                                            "tAvailable":'',"Notavailable":'',"B":'',"02-Apr":'3',"31-45":'38',"May-15":'',"Tgiven":'',"46-50":'48'},regex=True)
+        
+        data['Number_of_employees'] = np.where((pd.to_numeric(data['Number_of_employees'], errors='coerce')>100),'', data['Number_of_employees'])
+        
+        data['Number_of_employees'] = round(pd.to_numeric(data['Number_of_employees'], errors = 'coerce'),0).astype("Int64")
+        
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Rural - Urban
+        data['Rural_urban'] = data['Rural_urban'].astype(str)
+        data['Rural_urban'] = data['Rural_urban'].str.title()
+        data['Rural_urban'] = data['Rural_urban'].replace({'City Centre':'Urban','Wandegeya':'Urban','Nakawa':'Urban',
+                                                          'Katwe':'Urban','Bukoto':'Urban'}, regex = True)
+        
+        characters_to_remove = ['Semi',' ']
+        for char in characters_to_remove:
+            data['Rural_urban'] = data['Rural_urban'].str.replace(char, '')
+        
+        data['Rural_urban'] = np.where((data['Rural_urban'] == 'Rural') | (data['Rural_urban'] == 'Urban'), data['Rural_urban'], '')
+        
+    except Exception as e:
+        st.write(e)    
+    
+    try:
+    # #### Number_of_youth_employees	
+        data['Number_of_youth_employees'] = data['Number_of_youth_employees'].astype(str)
         data['Number_of_youth_employees'] = data['Number_of_youth_employees'].str.title()
-    except Exception:
-        print('')
-    data['Number_of_youth_employees'] = data['Number_of_youth_employees'].replace({"None":'','No':'','    -':'','O':'0'},regex = True)
-    data['Number_of_youth_employees'] = data['Number_of_youth_employees'].str.replace(' ','')
-    data['Number_of_youth_employees'] = np.where((pd.to_numeric(data['Number_of_youth_employees'], errors='coerce')>100),'', 
-                                                 data['Number_of_youth_employees'])
-    data['Number_of_youth_employees'] = pd.to_numeric(data['Number_of_youth_employees'], errors = 'coerce').astype("Int64")
+        data['Number_of_youth_employees'] = data['Number_of_youth_employees'].replace({"None":'','No':'','    -':'','O':'0'},regex = True)
+        data['Number_of_youth_employees'] = data['Number_of_youth_employees'].str.replace(' ','')
+        data['Number_of_youth_employees'] = np.where((pd.to_numeric(data['Number_of_youth_employees'], errors='coerce')>100),'', 
+                                                     data['Number_of_youth_employees'])
+        data['Number_of_youth_employees'] = pd.to_numeric(data['Number_of_youth_employees'], errors = 'coerce').astype("Int64")
+    except Exception as e:
+        st.write(e)
+    
+    try:
+        # #### Annual_revenue_of_borrower
+        data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].astype(str)
+        data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].str.lower()
+        
+        data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].str.replace(' ','')
+        data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].replace({"uknown":'',"unknown":''}, regex = True)
+        
+        data['Annual_revenue_of_borrower'] = round(pd.to_numeric(data['Annual_revenue_of_borrower'], errors = 'coerce'),0)
+        data['Annual_revenue_of_borrower'] = np.where((data['Annual_revenue_of_borrower']<0), -data['Annual_revenue_of_borrower'],data['Annual_revenue_of_borrower'])
+        data['Annual_revenue_of_borrower'] = np.where((data['Annual_revenue_of_borrower']<10000),'',data['Annual_revenue_of_borrower'])
+        
+        data['Annual_revenue_of_borrower'] = round(pd.to_numeric(data['Annual_revenue_of_borrower'], errors = 'coerce'),0).astype('Int64')
+    except Exception as e:
+        st.write(e)
     
     
-    
-    # #### Annual_revenue_of_borrower
-    data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].astype(str)
-    data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].str.lower()
-    
-    data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].str.replace(' ','')
-    data['Annual_revenue_of_borrower'] = data['Annual_revenue_of_borrower'].replace({"uknown":'',"unknown":''}, regex = True)
-    
-    data['Annual_revenue_of_borrower'] = round(pd.to_numeric(data['Annual_revenue_of_borrower'], errors = 'coerce'),0)
-    data['Annual_revenue_of_borrower'] = np.where((data['Annual_revenue_of_borrower']<0), -data['Annual_revenue_of_borrower'],data['Annual_revenue_of_borrower'])
-    data['Annual_revenue_of_borrower'] = np.where((data['Annual_revenue_of_borrower']<10000),'',data['Annual_revenue_of_borrower'])
-    
-    data['Annual_revenue_of_borrower'] = round(pd.to_numeric(data['Annual_revenue_of_borrower'], errors = 'coerce'),0).astype('Int64')
-    
-    
-    
-    
-    # #### Length of Time running
-    data['Length_of_time_running'] = data['Length_of_time_running'].astype(str)
-    data['Length_of_time_running'] = data['Length_of_time_running'].str.lower()
-    data['Length_of_time_running'] = data['Length_of_time_running'].str.split('y', expand=True)[0]
-    
-    # Clean Lyamujungu & Mushanga that submit dates
-    data['time_runtemp'] = pd.to_datetime(data["Length_of_time_running"], format='mixed', errors='coerce')
-    data["Length_of_time_running"] = np.where((data['time_runtemp'].isna()), data["Length_of_time_running"],
-                                                        (data["Date_of_loan_issue"] - data['time_runtemp']).dt.days // 365.25)
-    
-    #Replace
-    data['Length_of_time_running'] = data['Length_of_time_running'].replace({'not available':'','1/2 months':'1','1 - 3':'2',
-                                        '4 - 5':'4.5', 'less than':'','6 - 10':'8','more than':'','5months':'1',' ':'','3months':'0',"16weeks":'',"10months":'1',
-                                            "8months":'1',"2months":'0',"9month":'1',"2month":'0',"5month":'',"6&half":'6',"2half":'2',"nil":'0',"6ears":'6',
-                                                "15mths":'1', "11mth":'1',"1&1/2":'2',"none":'0',"3mon":'0', "1month":'0'},regex =True)
-    
-    data['Length_of_time_running'] = data['Length_of_time_running'].replace({"i":'',"6months":'1',"1s":'',"2months":'0',"4months":'0',"10s":'1'})
-    
-    #Clean Vision Fund - They submit months
-    data['Length_of_time_running'] = np.where((data['lender'] == 'Vision Fund'), pd.to_numeric(data["Length_of_time_running"], 
-                                                                        errors='coerce')//12, data['Length_of_time_running'])
-    
-    data['Length_of_time_running'] = np.where(((pd.to_numeric(data["Length_of_time_running"], errors = 'coerce')<0) | (pd.to_numeric(data["Length_of_time_running"], errors = 'coerce')>1000)), '', 
-                                                                        data['Length_of_time_running'])
-    #Convert to numeric
-    data['Length_of_time_running'] = (pd.to_numeric(data['Length_of_time_running'], errors = 'coerce').round(0)).astype("Int64")
+    try:
+        # #### Length of Time running
+        data['Length_of_time_running'] = data['Length_of_time_running'].astype(str)
+        data['Length_of_time_running'] = data['Length_of_time_running'].str.lower()
+        data['Length_of_time_running'] = data['Length_of_time_running'].str.split('y', expand=True)[0]
+        
+        # Clean Lyamujungu & Mushanga that submit dates
+        data['time_runtemp'] = pd.to_datetime(data["Length_of_time_running"], format='mixed', errors='coerce')
+        data["Length_of_time_running"] = np.where((data['time_runtemp'].isna()), data["Length_of_time_running"],
+                                                            (data["Date_of_loan_issue"] - data['time_runtemp']).dt.days // 365.25)
+        
+        #Replace
+        data['Length_of_time_running'] = data['Length_of_time_running'].replace({'not available':'','1/2 months':'1','1 - 3':'2',
+                                            '4 - 5':'4.5', 'less than':'','6 - 10':'8','more than':'','5months':'1',' ':'','3months':'0',"16weeks":'',"10months":'1',
+                                                "8months":'1',"2months":'0',"9month":'1',"2month":'0',"5month":'',"6&half":'6',"2half":'2',"nil":'0',"6ears":'6',
+                                                    "15mths":'1', "11mth":'1',"1&1/2":'2',"none":'0',"3mon":'0', "1month":'0'},regex =True)
+        
+        data['Length_of_time_running'] = data['Length_of_time_running'].replace({"i":'',"6months":'1',"1s":'',"2months":'0',"4months":'0',"10s":'1'})
+        
+        #Clean Vision Fund - They submit months
+        data['Length_of_time_running'] = np.where((data['lender'] == 'Vision Fund'), pd.to_numeric(data["Length_of_time_running"], 
+                                                                            errors='coerce')//12, data['Length_of_time_running'])
+        
+        data['Length_of_time_running'] = np.where(((pd.to_numeric(data["Length_of_time_running"], errors = 'coerce')<0) | (pd.to_numeric(data["Length_of_time_running"], errors = 'coerce')>1000)), '', 
+                                                                            data['Length_of_time_running'])
+        #Convert to numeric
+        data['Length_of_time_running'] = (pd.to_numeric(data['Length_of_time_running'], errors = 'coerce').round(0)).astype("Int64")
+    except Exception as e:
+        st.write(e)
     
     
+    try:
+        # #### Person_with_disabilities
+        data['Person_with_disabilities'] = data['Person_with_disabilities'].astype(str)
+        data['Person_with_disabilities'] = data['Person_with_disabilities'].str.title()
+        data['Person_with_disabilities'] = data['Person_with_disabilities'].str.replace(' ','') 
+        data['Person_with_disabilities'] = data['Person_with_disabilities'].replace({'False':'No', 'True':'Yes', 'N':'No', '0':'',
+                                                           'Y':'Yes','N0':'No','None':'','1':'','Nil':''}).fillna('')
+    except Exception as e:
+            st.write(e) 
     
+    try:
+        # #### Number_of_employees_that_are_refugees
+        data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].astype(str)
+        data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].str.title()
+        data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].str.replace(' ','')
+        data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].replace({'No':'0',"None":'0',"Non":'0',
+                                                                                                              "Nil":'0'})
+        data['Number_of_employees_that_are_refugees'] = round(pd.to_numeric(data['Number_of_employees_that_are_refugees'], errors = 'coerce'),0).astype("Int64")
+    except Exception as e:
+        st.write(e)
     
-    # #### Person_with_disabilities
-    data['Person_with_disabilities'] = data['Person_with_disabilities'].astype(str)
-    data['Person_with_disabilities'] = data['Person_with_disabilities'].str.title()
-    data['Person_with_disabilities'] = data['Person_with_disabilities'].str.replace(' ','') 
-    data['Person_with_disabilities'] = data['Person_with_disabilities'].replace({'False':'No', 'True':'Yes', 'N':'No', '0':'',
-                                                                'Y':'Yes','N0':'No','None':'','1':'','Nil':''}).fillna('')
+    try:
+        # #### Number_of_female_employees
+        data['Number_of_female_employees'] = data['Number_of_female_employees'].astype(str)
+        data['Number_of_female_employees'] = data['Number_of_female_employees'].str.title() 
+        data['Number_of_female_employees'] = data['Number_of_female_employees'].replace({'None':'0','     -':'',"No":'0',"Nil":'0',"Yes":''},
+                                                                                        regex = True)
+        data['Number_of_female_employees'] = data['Number_of_female_employees'].str.replace(' ','')
+        data['Number_of_female_employees'] = np.where((pd.to_numeric(data['Number_of_female_employees'], errors='coerce')>100),'', data['Number_of_female_employees'])
+        data['Number_of_female_employees'] = round(pd.to_numeric(data['Number_of_female_employees'], errors = 'coerce'),0).astype('Int64')
+    except Exception as e:
+            st.write(e) 
     
+    try:
+        # #### Previously_unemployed
+        data['Previously_unemployed'] = data['Previously_unemployed'].astype(str)
+        data['Previously_unemployed'] = data['Previously_unemployed'].str.title()
+        data['Previously_unemployed'] = data['Previously_unemployed'].replace({'None':'0','N0':'','Yes':'',"True":'',"False":'',"Ne":'',
+                                                                        "No":'',"Y":'',"2 Employees":'2',"N":'','n':''}, regex = True)
+        
+        data['Previously_unemployed'] = data['Previously_unemployed'].str.replace(' ','')
+        data['Previously_unemployed'] = np.where((pd.to_numeric(data['Previously_unemployed'], errors='coerce')>100),'', data['Previously_unemployed'])
+        
+        data['Previously_unemployed'] = round(pd.to_numeric(data['Previously_unemployed'], errors = 'coerce'),0).astype('Int64')
+    except Exception as e:
+            st.write(e) 
     
+    try:
+        # #### Number_of_employees_with_disabilities
+        data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].astype(str)	
+        data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].str.lower()
+        data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].replace({'none':'0','     -':'',
+                                                                                    "no":'0',"nil":'0',"yes":''},regex = True)
+        data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].str.replace(' ','')
+        
+        data['Number_of_employees_with_disabilities'] = round(pd.to_numeric(data['Number_of_employees_with_disabilities'], errors = 'coerce'),0).astype('Int64')
+    except Exception as e:
+            st.write(e) 
     
-    # #### Number_of_employees_that_are_refugees
-    data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].astype(str)
-    data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].str.title()
-    data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].str.replace(' ','')
-    data['Number_of_employees_that_are_refugees'] = data['Number_of_employees_that_are_refugees'].replace({'No':'0',"None":'0',"Non":'0',
-                                                                                                          "Nil":'0'})
-    data['Number_of_employees_that_are_refugees'] = round(pd.to_numeric(data['Number_of_employees_that_are_refugees'], errors = 'coerce'),0).astype("Int64")
-    
-    
-    
-    # #### Number_of_female_employees
-    data['Number_of_female_employees'] = data['Number_of_female_employees'].astype(str)
-    data['Number_of_female_employees'] = data['Number_of_female_employees'].str.title() 
-    data['Number_of_female_employees'] = data['Number_of_female_employees'].replace({'None':'0','     -':'',"No":'0',"Nil":'0',"Yes":''},
-                                                                                    regex = True)
-    data['Number_of_female_employees'] = data['Number_of_female_employees'].str.replace(' ','')
-    data['Number_of_female_employees'] = np.where((pd.to_numeric(data['Number_of_female_employees'], errors='coerce')>100),'', data['Number_of_female_employees'])
-    data['Number_of_female_employees'] = round(pd.to_numeric(data['Number_of_female_employees'], errors = 'coerce'),0).astype('Int64')
-    
-    
-    
-    # #### Previously_unemployed
-    data['Previously_unemployed'] = data['Previously_unemployed'].astype(str)
-    data['Previously_unemployed'] = data['Previously_unemployed'].str.title()
-    data['Previously_unemployed'] = data['Previously_unemployed'].replace({'None':'0','N0':'','Yes':'',"True":'',"False":'',"Ne":'',
-                                                                    "No":'',"Y":'',"2 Employees":'2',"N":'','n':''}, regex = True)
-    
-    data['Previously_unemployed'] = data['Previously_unemployed'].str.replace(' ','')
-    data['Previously_unemployed'] = np.where((pd.to_numeric(data['Previously_unemployed'], errors='coerce')>100),'', data['Previously_unemployed'])
-    
-    data['Previously_unemployed'] = round(pd.to_numeric(data['Previously_unemployed'], errors = 'coerce'),0).astype('Int64')
-    
-    
-    
-    # #### Number_of_employees_with_disabilities
-    data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].astype(str)	
-    data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].str.lower()
-    data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].replace({'none':'0','     -':'',
-                                                                                "no":'0',"nil":'0',"yes":''},regex = True)
-    data['Number_of_employees_with_disabilities'] = data['Number_of_employees_with_disabilities'].str.replace(' ','')
-    
-    data['Number_of_employees_with_disabilities'] = round(pd.to_numeric(data['Number_of_employees_with_disabilities'], errors = 'coerce'),0).astype('Int64')
-    
-    
-    
-    # #### Loan_cycle_fund_specific
-    data['Loan_cycle_fund_specific']  = data['Loan_cycle_fund_specific'].astype(str)
-    data['Loan_cycle_fund_specific'] = data['Loan_cycle_fund_specific'].str.title()
-    data['Loan_cycle_fund_specific'] = data['Loan_cycle_fund_specific'].replace({'N':'',"Fsd Uganda":''})
-    data['Loan_cycle_fund_specific'] = (pd.to_numeric(data['Loan_cycle_fund_specific'], errors = 'coerce').round(0)).astype('Int64')
-    
+    try:
+        # #### Loan_cycle_fund_specific
+        data['Loan_cycle_fund_specific']  = data['Loan_cycle_fund_specific'].astype(str)
+        data['Loan_cycle_fund_specific'] = data['Loan_cycle_fund_specific'].str.title()
+        data['Loan_cycle_fund_specific'] = data['Loan_cycle_fund_specific'].replace({'N':'',"Fsd Uganda":''})
+        data['Loan_cycle_fund_specific'] = (pd.to_numeric(data['Loan_cycle_fund_specific'], errors = 'coerce').round(0)).astype('Int64')
+    except Exception as e:
+            st.write(e) 
     
     
     # #### Sectors
@@ -559,32 +591,33 @@ def clean(data):
         # Add more sectors and their associated keywords as needed
     }
         
+    try:    
+        data['sectortemp'] = data['Line_of_business']+data['Loan_purpose']+data['Loan_product_description']
         
-    data['sectortemp'] = data['Line_of_business']+data['Loan_purpose']+data['Loan_product_description']
-    
-    data['sectortemp']=data['sectortemp'].astype(str)
-    
-    # Create a new column 'sector' and initialize with 'Other'
-    data['Sector'] = 'not_defined'
-    
-    # Iterate over each row in the DataFrame
-    for index, row in data.iterrows():
-        line_of_business = row['sectortemp'].lower()
+        data['sectortemp']=data['sectortemp'].astype(str)
         
-        # Check for each sector's keywords in the 'line_of_business' column
-        for sector, keywords in sector_keywords.items():
-            for keyword in keywords:
-                if keyword in line_of_business:
-                    data.at[index, 'Sector'] = sector
-                    break  # Exit the loop once a sector is identified for the current row
-    
-                    
-    
-    # Insert 'Sector' column next to 'Loan purpose'
-    data.insert(data.columns.get_loc('Loan_purpose')+1, 'Sector', data.pop('Sector'))
-    #title case    
-    data['Sector'] = data['Sector'].str.title()
-    
+        # Create a new column 'sector' and initialize with 'Other'
+        data['Sector'] = 'not_defined'
+        
+        # Iterate over each row in the DataFrame
+        for index, row in data.iterrows():
+            line_of_business = row['sectortemp'].lower()
+            
+            # Check for each sector's keywords in the 'line_of_business' column
+            for sector, keywords in sector_keywords.items():
+                for keyword in keywords:
+                    if keyword in line_of_business:
+                        data.at[index, 'Sector'] = sector
+                        break  # Exit the loop once a sector is identified for the current row
+        
+                        
+        
+        # Insert 'Sector' column next to 'Loan purpose'
+        data.insert(data.columns.get_loc('Loan_purpose')+1, 'Sector', data.pop('Sector'))
+        #title case    
+        data['Sector'] = data['Sector'].str.title()
+    except Exception as e:
+            st.write(e) 
     
     # #### Districts
     district_keywords = {
@@ -744,7 +777,7 @@ def clean(data):
         'Kyotera': ['kyotera','buwenge','mutukula','kakuto','kalisizo','kiwumulo','kabira'],
         'Jinja': ['jinja','bugembe','kyamagwa','budondo,','karongo','mpumudde','butembe','magamaga','kakira','mafubila','namaganga'],
         'Kabarole': ['kabarole','kitesweka','rwenkuba','buhesi','buhesesi','nyamirima','kabonero','kasekero','kyanga','kabagara',
-                     'kyeganywa','rweitano','iruhura','kiboota','nyabweya'],
+                     'kyeganywa','rweitano','iruhura','kiboota','nyabweya', 'busedde', 'nalubaale'],
         'Luuka':['luuka'],
         'Kisoro':['kisoro','muhanga'],
         'Buvuma': ['buvuma'],
@@ -752,7 +785,7 @@ def clean(data):
         'Kikuube': ['kikuube'],
         'Katakwi':['katakwii','katakwi','oleroi','guyaguya'],
         'Ngora': ['ngora','ariet'],
-        'Nakaseke': ['nakaseke','kiwaguzi b','lumpewe','kivumu','bujuubya','magoma','butikwa','butiikwa','kiwoko','zigula'],
+        'Nakaseke': ['nakaseke','kiwaguzi b','lumpewe','kivumu','bujuubya','magoma','butikwa','butiikwa','kiwoko','zigula', 'butalangu'],
         'Kasanda': ['kasanda'],
         'Obongi':['obongi'],
         'Yumbe': ['yumbe','awoba','yangani','tuliki','ataboo','otche'],
@@ -782,27 +815,28 @@ def clean(data):
     
     }
     
-    
-    # Create a new column 'district' and initialize with 'Other'
-    data['District'] = 'Not_Available'
-    data['Location_of_borrower'] = data['Location_of_borrower'].astype(str)
-    
-    # Iterate over each row in the DataFrame
-    for index, row in data.iterrows():
-        location = row['Location_of_borrower'].lower()
+    try:
+        # Create a new column 'district' and initialize with 'Other'
+        data['District'] = 'Not_Available'
+        data['Location_of_borrower'] = data['Location_of_borrower'].astype(str)
         
-        # Check for each sector's keywords in the 'location' column
-        for district, keywords in district_keywords.items():
-            for keyword in keywords:
-                if keyword in location:
-                    data.at[index, 'District'] = district
-                    break  # Exit the loop once a sector is identified for the current row
-    
-    # Insert 'District' column next to 'Location of borrower'
-    data.insert(data.columns.get_loc('Location_of_borrower')+1, 'District', data.pop('District'))
-    #title case    
-    data['District'] = data['District'].str.title()
-    
+        # Iterate over each row in the DataFrame
+        for index, row in data.iterrows():
+            location = row['Location_of_borrower'].lower()
+            
+            # Check for each sector's keywords in the 'location' column
+            for district, keywords in district_keywords.items():
+                for keyword in keywords:
+                    if keyword in location:
+                        data.at[index, 'District'] = district
+                        break  # Exit the loop once a sector is identified for the current row
+        
+        # Insert 'District' column next to 'Location of borrower'
+        data.insert(data.columns.get_loc('Location_of_borrower')+1, 'District', data.pop('District'))
+        #title case    
+        data['District'] = data['District'].str.title()
+    except Exception as e:
+            st.write(e) 
     
     # #### Regions
     region_keywords = {
@@ -828,39 +862,47 @@ def clean(data):
     
         # Add more regions and their associated keywords as needed
     }
-    
-    # Create a new column 'region' and initialize with 'Other'
-    data['Region'] = 'Other'
-    
-    # Iterate over each row in the DataFrame
-    for index, row in data.iterrows():
-        location = row['District'].lower()
+    try:
+        # Create a new column 'region' and initialize with 'Other'
+        data['Region'] = 'Other'
         
-        # Check for each district's keywords in the 'District' column
-        for region, district in region_keywords.items():
-            for keyword in district:
-                if keyword in location:
-                    data.at[index, 'Region'] = region
-                    break  # Exit the loop once a sector is identified for the current row
-    
-    data['Region'] = np.where((data['Location_of_borrower']=='Central'), 'Central', data['Region'])
-    data['Region'] = np.where((data['Location_of_borrower']=='North'), 'Northern', data['Region'])
-    data['Region'] = np.where((data['Location_of_borrower']=='East'), 'Eastern', data['Region'])
-    
-    data['Region'] = np.where(((data['lender']=='Nile Microfinance') & (data['District']=='Not_Available')), 'West Nile', data['Region'])
-    data['Region'] = np.where(((data['lender']=='EBO SACCO') & (data['District']=='Not_Available')), 'South Western', data['Region'])
-    data['Region'] = np.where(((data['lender']=="Kyamuhunga People's SACCO") & (data['District']=='Not_Available')), 'South Western', data['Region'])
-    
-    # Insert 'Region' column next to 'District'
-    data.insert(data.columns.get_loc('District')+1, 'Region', data.pop('Region'))
-    
-    #Rename columns
-    data.rename(columns = {'Interest_rate':'Interest_rate(As submitted by PFI)', 'Interest_red_bal':'Annual_Interest_red_bal-Cleaned',
-                           'Tenure_of_loan':'Tenure_of_loan(months)'}, inplace = True)
-    
-    # #### Delete dummy columns
-    dummies = ['issuetemp','agetemp','repaytemp','ENI_temp','time_runtemp','sectortemp','created']
-    data.drop(columns = dummies, inplace = True)
-    
+        # Iterate over each row in the DataFrame
+        for index, row in data.iterrows():
+            location = row['District'].lower()
+            
+            # Check for each district's keywords in the 'District' column
+            for region, district in region_keywords.items():
+                for keyword in district:
+                    if keyword in location:
+                        data.at[index, 'Region'] = region
+                        break  # Exit the loop once a sector is identified for the current row
+        
+        data['Region'] = np.where((data['Location_of_borrower']=='Central'), 'Central', data['Region'])
+        data['Region'] = np.where((data['Location_of_borrower']=='North'), 'Northern', data['Region'])
+        data['Region'] = np.where((data['Location_of_borrower']=='East'), 'Eastern', data['Region'])
+        
+        data['Region'] = np.where(((data['lender']=='Nile Microfinance') & (data['District']=='Not_Available')), 'West Nile', data['Region'])
+        data['Region'] = np.where(((data['lender']=='EBO SACCO') & (data['District']=='Not_Available')), 'South Western', data['Region'])
+        data['Region'] = np.where(((data['lender']=="Kyamuhunga People's SACCO") & (data['District']=='Not_Available')), 'South Western', data['Region'])
+        
+        # Insert 'Region' column next to 'District'
+        data.insert(data.columns.get_loc('District')+1, 'Region', data.pop('Region'))
+    except Exception as e:
+            st.write(e) 
+     
+    try:
+        #Rename columns
+        data.rename(columns = {'Interest_rate':'Interest_rate(As submitted by PFI)', 'Interest_red_bal':'Annual_Interest_red_bal-Cleaned',
+                               'Tenure_of_loan':'Tenure_of_loan(months)'}, inplace = True)
+    except Exception as e:
+            st.write(e) 
+            
+    try:
+        # #### Delete dummy columns
+        dummies = ['issuetemp','agetemp','repaytemp','ENI_temp','time_runtemp','sectortemp','created']
+        data.drop(columns = dummies, inplace = True)
+    except Exception as e:
+            st.write(e) 
+            
     return data
 
