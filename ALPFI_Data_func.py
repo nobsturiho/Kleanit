@@ -906,11 +906,11 @@ def clean(data):
         split_data.columns = ['Part1', 'Part2']
         data['Unique_id'] = np.where((data['lender'] =='UGAFODE Microfinance')&(data['NINchar']>23), split_data['Part2'], data['Unique_id'])
         
-        delchar = ["(nin)", "(NIN)",'+0', '+1','-1',"(Nin)",'..','/F','/B1176536','12122222','/11315351']
+        delchar = ["(nin)", "(NIN)",'+0', '+1','-1',"(Nin)",'..','/F','/B1176536','12122222','/11315351','`']
         for i in delchar:
             data['Unique_id'] = data['Unique_id'].str.replace(i,"")
         
-        delchar2 = ['ResidentialID','Central','062408/1056750','LETTER','REG;180','SARAH','4kahihi']
+        delchar2 = ['ResidentialID','Central','062408/1056750','LETTER','REG;180','SARAH','4kahihi','Kyenshama','CERTIFICAT','VOTER']
         for j in delchar2:
             data['Unique_id'] = data['Unique_id'].apply(lambda x: 'No_id' if j in x else x)
         
@@ -926,6 +926,11 @@ def clean(data):
         
         data['Unique_id'] = np.where((data['Unique_id']=='No_id'), data['Borrower_ID'], data['Unique_id'])
         data['UniqueId_type'] = np.where(data['Unique_id']==data['Borrower_ID'], "Borrower Id", data['UniqueId_type'])
+        
+        
+        maskid = (data['UniqueId_type'] == 'National Id') & (~data['Unique_id'].str[0].isin(['C', 'c', 'P', 'p']))
+        data.loc[maskid, 'Unique_id'] = data.loc[maskid, 'Borrower_ID']
+        data.loc[maskid, 'UniqueId_type'] = 'Borrower Id'
         
         data.insert(data.columns.get_loc('month')+1, 'Unique_id', data.pop('Unique_id'))
         data.insert(data.columns.get_loc('Unique_id')+1, 'UniqueId_type', data.pop('UniqueId_type'))    
