@@ -889,7 +889,50 @@ def clean(data):
         data.insert(data.columns.get_loc('District')+1, 'Region', data.pop('Region'))
     except Exception as e:
             st.write(e) 
-     
+    
+    try:
+    #Add column that shows unique id as NIN, and if no Nin is provided, provide borrower id.
+    #Also add a column called id type that shows whether the id in unique id column is National id, Borrower id or Refugee if
+        data['Unique_id'] = data['NIN'].copy()
+    
+        data['Unique_id'] = data['Unique_id'].astype(str)
+        data['Unique_id'] = data['Unique_id'].str.replace(" ","")
+        data['NINchar'] = data['Unique_id'].apply(len)
+        
+        data['Unique_id'] = np.where((data['NINchar']<10), 'No_id', data['Unique_id'])
+        
+        split_data = data['Unique_id'].str.split('/', expand=True)
+        # Rename the new columns (optional)
+        split_data.columns = ['Part1', 'Part2']
+        data['Unique_id'] = np.where((data['lender'] =='UGAFODE Microfinance')&(data['NINchar']>23), split_data['Part2'], data['Unique_id'])
+        
+        delchar = ["(nin)", "(NIN)",'+0', '+1','-1',"(Nin)",'..','/F','/B1176536','12122222','/11315351']
+        for i in delchar:
+            data['Unique_id'] = data['Unique_id'].str.replace(i,"")
+        
+        delchar2 = ['ResidentialID','Central','062408/1056750','LETTER','REG;180','SARAH','4kahihi']
+        for j in delchar2:
+            data['Unique_id'] = data['Unique_id'].apply(lambda x: 'No_id' if j in x else x)
+        
+        data['NINchar'] = data['Unique_id'].apply(len)
+        
+        data['Unique_id'] = np.where(data['NINchar']>16, 'No_id', data['Unique_id'])
+        
+        data['NINchar'] = data['Unique_id'].apply(len)
+        
+        data['Unique_id'] = data['Unique_id'].apply(lambda x: 'No_id' if x.isdigit() else x)
+        
+        data['UniqueId_type'] = data['Unique_id'].apply(lambda x: 'Refugee id' if len(x) > 2 and x[3] == '-' else 'National Id')
+        
+        data['Unique_id'] = np.where((data['Unique_id']=='No_id'), data['Borrower_ID'], data['Unique_id'])
+        data['UniqueId_type'] = np.where(data['Unique_id']==data['Borrower_ID'], "Borrower Id", data['UniqueId_type'])
+        
+        data.insert(data.columns.get_loc('month')+1, 'Unique_id', data.pop('Unique_id'))
+        data.insert(data.columns.get_loc('Unique_id')+1, 'UniqueId_type', data.pop('UniqueId_type'))    
+    except Exception as e:
+            st.write(e) 
+    
+    
     try:
         #Rename columns
         data.rename(columns = {'Interest_rate':'Interest_rate(As submitted by PFI)', 'Interest_red_bal':'Annual_Interest_red_bal-Cleaned',
@@ -899,7 +942,7 @@ def clean(data):
             
     try:
         # #### Delete dummy columns
-        dummies = ['issuetemp','agetemp','repaytemp','ENI_temp','time_runtemp','sectortemp','created']
+        dummies = ['issuetemp','agetemp','repaytemp','ENI_temp','time_runtemp','sectortemp','created','NINchar']
         data.drop(columns = dummies, inplace = True)
     except Exception as e:
             st.write(e) 
