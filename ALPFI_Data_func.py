@@ -928,18 +928,18 @@ def clean(data):
         
         data['Unique_id'] = data['Unique_id'].apply(lambda x: 'No_id' if x.isdigit() else x)
         
-        data['UniqueId_type'] = data['Unique_id'].apply(lambda x: 'Refugee id' if len(x) > 2 and x[3] == '-' else 'National Id')
+        data['Unique Id_type'] = data['Unique_id'].apply(lambda x: 'Refugee id' if len(x) > 2 and x[3] == '-' else 'National Id')
         
         data['Unique_id'] = np.where((data['Unique_id']=='No_id'), data['Borrower_ID'], data['Unique_id'])
-        data['UniqueId_type'] = np.where(data['Unique_id']==data['Borrower_ID'], "Borrower Id", data['UniqueId_type'])
+        data['Unique Id_type'] = np.where(data['Unique_id']==data['Borrower_ID'], "Borrower Id", data['Unique Id_type'])
         
         
-        maskid = (data['UniqueId_type'] == 'National Id') & (~data['Unique_id'].str[0].isin(['C', 'c', 'P', 'p']))
+        maskid = (data['Unique Id_type'] == 'National Id') & (~data['Unique_id'].str[0].isin(['C', 'c', 'P', 'p']))
         data.loc[maskid, 'Unique_id'] = data.loc[maskid, 'Borrower_ID']
-        data.loc[maskid, 'UniqueId_type'] = 'Borrower Id'
+        data.loc[maskid, 'Unique Id_type'] = 'Borrower Id'
         
         data.insert(data.columns.get_loc('month')+1, 'Unique_id', data.pop('Unique_id'))
-        data.insert(data.columns.get_loc('Unique_id')+1, 'UniqueId_type', data.pop('UniqueId_type'))    
+        data.insert(data.columns.get_loc('Unique_id')+1, 'Unique Id_type', data.pop('Unique Id_type'))    
     except Exception as e:
             st.write(e) 
     
