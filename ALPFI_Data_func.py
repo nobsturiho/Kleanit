@@ -901,11 +901,13 @@ def clean(data):
         
         data['Unique_id'] = np.where((data['NINchar']<10), 'No_id', data['Unique_id'])
         
-        split_data = data['Unique_id'].str.split('/', expand=True)
-        # Rename the new columns (optional)
-        split_data.columns = ['Part1', 'Part2']
-        data['Unique_id'] = np.where((data['lender'] =='UGAFODE Microfinance')&(data['NINchar']>23), split_data['Part2'], data['Unique_id'])
-        
+        try:
+            split_data = data['Unique_id'].str.split('/', expand=True)
+            # Rename the new columns (optional)
+            split_data.columns = ['Part1', 'Part2']
+            data['Unique_id'] = np.where((data['lender'] =='UGAFODE Microfinance')&(data['NINchar']>23), split_data['Part2'], data['Unique_id'])
+        except Exception as e:
+            print(e)
         delchar = ["(nin)", "(NIN)",'+0', '+1','-1',"(Nin)",'..','/F','/B1176536','12122222','/11315351','`']
         for i in delchar:
             data['Unique_id'] = data['Unique_id'].str.replace(i,"")
