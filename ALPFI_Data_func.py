@@ -245,6 +245,10 @@ def clean(data):
         
     try:
         # #### Tenure_of_loan
+        data['Tenure_of_loan (As submitted)'] = data['Tenure_of_loan'].copy()
+        # Insert 'Tenure_of_loan (As submitted)' column next to 'Tenure_of_loan'
+        data.insert(data.columns.get_loc('Tenure_of_loan')+1, 'Tenure_of_loan (As submitted)', data.pop('Tenure_of_loan (As submitted)'))
+        
         data['Tenure_of_loan'] = data['Tenure_of_loan'].astype(str)
         data['Tenure_of_loan'] = data['Tenure_of_loan'].str.lower()
         data['Tenure_of_loan'] = data['Tenure_of_loan'].replace({'4 quarter(s)':'12'})
