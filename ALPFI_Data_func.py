@@ -170,8 +170,9 @@ def clean(data):
         
         mask = data['repaytemp'] > 40000
         data.loc[mask, 'Date_of_repayments_commencement'] = datetime.datetime(1900, 1, 1) + pd.to_timedelta(data.loc[mask, 'repaytemp'] - 2, unit='D')
-        
+    
         data['Date_of_repayments_commencement'] = pd.to_datetime(data['Date_of_repayments_commencement'], format='mixed', errors = 'coerce')
+        data['Date_of_repayments_commencement'] = pd.to_datetime(data['Date_of_repayments_commencement'], dayfirst=True).dt.strftime('%d/%m/%Y')
     except Exception as e:
         st.write(e)
     
