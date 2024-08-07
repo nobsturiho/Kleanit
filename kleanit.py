@@ -85,7 +85,7 @@ if uploaded_file is not None:
             month = df[df['year']==df['year'].max()]['month'].max()
             month = calendar.month_name[int(month)]
             if len(lender) == 1:
-                PFI = lender
+                PFI = lender.str.replace("_"," ")
             else:
                 PFI="as of"
             
@@ -93,7 +93,7 @@ if uploaded_file is not None:
             st.download_button(
                 label="Click to Download Clean File",
                 data=df.to_csv(index=False),  # Convert DataFrame to Excel data
-                file_name= f"Clean Data_{PFI}_{month}-{df['year'].max()}_MSE-RF.csv",  # Set file name
+                file_name= f"Clean Data {PFI} - {month} {df['year'].max()} - MSE RF.csv",  # Set file name
             )
             
         
