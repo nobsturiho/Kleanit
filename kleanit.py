@@ -85,7 +85,7 @@ if uploaded_file is not None:
             month = df[df['year']==df['year'].max()]['month'].max()
             month = calendar.month_name[int(month)]
             if len(lender) == 1:
-                PFI = lender.str.replace("_"," ")
+                PFI = lender
             else:
                 PFI="as of"
             

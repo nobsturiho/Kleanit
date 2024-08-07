@@ -943,7 +943,12 @@ def clean(data):
         data.insert(data.columns.get_loc('Unique_id')+1, 'Unique Id_type', data.pop('Unique Id_type'))    
     except Exception as e:
             st.write(e) 
-    
+            
+    try:
+        # Add a column that shows first time borrowing and repeat borrowing
+        data['Unique/Repeated'] = data.groupby('Unique_id')['Date_of_loan_issue'].transform(lambda x: (x == x.min()).map({True: 'First time', False: 'Repeat'}))
+    except Exception as e:
+            st.write(e) 
     
     try:
         #Rename columns
