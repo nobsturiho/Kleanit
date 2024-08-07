@@ -93,7 +93,7 @@ if uploaded_file is not None:
             st.download_button(
                 label="Click to Download Clean File",
                 data=df.to_csv(index=False),  # Convert DataFrame to Excel data
-                file_name= f"Clean Data {PFI} - {month} {df['year'].max()} - MSE RF.csv",  # Set file name
+                file_name= f"Clean Data - {PFI} - {month} {df['year'].max()}.csv",  # Set file name
             )
             
         
