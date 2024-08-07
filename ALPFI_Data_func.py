@@ -946,7 +946,8 @@ def clean(data):
             
     try:
         # Add a column that shows first time borrowing and repeat borrowing
-        data['Unique/Repeated'] = data.groupby('Unique_id')['Date_of_loan_issue'].transform(lambda x: (x == x.min()).map({True: 'First time', False: 'Repeat'}))
+        data['First time/Repeat'] = data.groupby('Unique_id')['Date_of_loan_issue'].transform(lambda x: (x == x.min()).map({True: 'First time', False: 'Repeat'}))
+        data.insert(data.columns.get_loc('Unique Id_type')+1, 'First time/Repeat', data.pop('First time/Repeat'))
     except Exception as e:
             st.write(e) 
     
