@@ -118,11 +118,11 @@ if uploaded_file is not None:
         with col2:
             Gender = pd.DataFrame(df.groupby(by ='Gender').count()['year']).rename(columns = {'year':'Number'})
             Women = (Gender.iloc[0,0]/(Gender['Number'].sum())*100).round(1)
-            st.metric('Pct Women (%)', Women, 0)
+            st.metric('Pct Women Loans (%)', Women, 0)
         with col3:
             Age_Group = pd.DataFrame(df.groupby(by ='Age_Group').count()['year']).rename(columns = {'year':'Number'})
             Youths = (Age_Group.iloc[-1,0]/(Age_Group['Number'].sum())*100).round(1)
-            st.metric('Pct Youths (%)', Youths, 0)
+            st.metric('Pct Youths Loans (%)', Youths, 0)
             
             
         st.subheader('Loan Type')     
@@ -132,7 +132,7 @@ if uploaded_file is not None:
         st.write(Loan_type)
         
         
-        st.subheader('Number of Women Borrowers')
+        st.subheader('Number of Women Loans')
         try:
             Gender_df = pd.DataFrame(df.groupby('Gender')['Loan_amount'].count())
             Gender_df = Gender_df.rename(columns = {"Loan_amount":"Number"})
@@ -142,7 +142,7 @@ if uploaded_file is not None:
             st.write("Error")
             
             
-        st.subheader('Number of Youth Borrowers')
+        st.subheader('Number of Youth Loans')
         try:
             Age_Group_df = pd.DataFrame(df.groupby('Age_Group')['Loan_amount'].count())
             Age_Group_df = Age_Group_df.rename(columns = {"Loan_amount":"Number"})
@@ -152,7 +152,7 @@ if uploaded_file is not None:
             st.write("Error")
             
             
-        st.subheader('Economic Sectors Served')
+        st.subheader('No. of Loans by Economic Sector')
         try:
             Sector_df = pd.DataFrame(df.groupby('Sector')['Loan_amount'].count())
             Sector_df = Sector_df.rename(columns = {"Loan_amount":"Number"})
@@ -162,7 +162,7 @@ if uploaded_file is not None:
             st.write("Error")
         
         
-        st.subheader('Regions Served')
+        st.subheader('Number of Loans by Regions Served')
         try:
             Region_df = pd.DataFrame(df.groupby('Region')['Loan_amount'].count())
             Region_df = Region_df.rename(columns = {"Loan_amount":"Number"})
@@ -171,24 +171,71 @@ if uploaded_file is not None:
         except Exception:
             st.write("Error")
         
-        
-        st.subheader('Average Revenue of Borrowers')
-        try:
-            Annual_Revenue = format(round(df['Annual_revenue_of_borrower'].mean(), 0), ',')
-            st.metric('Average Revenue (UGX)',Annual_Revenue)
-        except Exception:
-            st.write("Error")
-        
-        
-        st.subheader('Average Number of Employees')
-        try:
-            employees = round(df['Number_of_employees'].mean(), 0)
-            st.metric('Average number of employees:', employees)
-        except Exception:
-            st.write("Error")
-         
+
+        #Add Columns
+        col1, col2, col3 = st.columns(3)
+        with col1:
+           st.subheader('Revenue of Borrowers')
+           try:
+               Annual_Revenue = format(round(df['Annual_revenue_of_borrower'].mean(), 0), ',')
+               st.metric('Average Revenue (UGX)',Annual_Revenue)
+           except Exception:
+               st.write("Error")
             
+        with col2:
+            st.subheader('Number of Employees')
+            try:
+                employees = round(df['Number_of_employees'].mean(), 0)
+                st.metric('Average number of employees:', employees)
+            except Exception:
+                st.write("Error")
+        
+        with col3:
+            st.subheader('Ticket Size')
+            Ticket = format(round(df['Loan_amount'].mean(),0), ',')
+            st.metric('Avg Tickets (UGX)', Ticket, 0)
+            
+        with col1:
+            try:
+                Median_Revenue = format(round(df['Annual_revenue_of_borrower'].median(), 0), ',')
+                st.metric('Median Revenue (UGX)',Median_Revenue)
+            except Exception:
+                st.write("Error")
+           
+        with col2:
+            try:
+                median_employees = round(df['Number_of_employees'].mean(), 0)
+                st.metric('Median number of employees:', median_employees)
+            except Exception:
+                st.write("Error")
+            
+        with col3:
+            median_Ticket = format(round(df['Loan_amount'].median(),0), ',')
+            st.metric('Median Tickets (UGX)', median_Ticket, 0)
+        
+        with col1:
+            try:
+                mode_Revenue = format(round(df['Annual_revenue_of_borrower'].mode()[0], 0), ',')
+                st.metric('Mode Revenue (UGX)',mode_Revenue)
+            except Exception:
+                st.write("Error")
+           
+        with col2:
+            try:
+                mode_employees = round(df['Number_of_employees'].mode()[0], 0)
+                st.metric('Mode number of employees:', mode_employees)
+            except Exception:
+                st.write("Error")
                 
+        with col3:
+            try:
+                mode_Ticket = format(round(df['Loan_amount'].mode()[0], 0), ',')
+                st.metric('Mode Tickets (UGX)', mode_Ticket, 0)
+            except Exception:
+                st.write("Error")
+
+
+
         st.subheader('Regional Analytics')
         grouped_data = df.groupby('Region').agg({'id': 'count',
                                                     'Gender': lambda x: (x == 'Female').sum(),
@@ -196,25 +243,25 @@ if uploaded_file is not None:
                                                    'Loan_amount': ['mean', 'sum']})
 
         # Rename the columns
-        grouped_data.columns = 'Number of loans', 'Number of women', 'Number of youths','Average Ticket Size (UGX 000)','Total Amount Disbursed (UGX M)'
+        grouped_data.columns = 'Number of loans', 'No. of women loans', 'No. of youths loans','Average Ticket Size (UGX 000)','Total Amount Disbursed (UGX M)'
         
         # Reset the index to make 'Region' a column
         grouped_data.reset_index(inplace=True)
         grouped_data['Average Ticket Size (UGX 000)'] = round(grouped_data['Average Ticket Size (UGX 000)']/1000,3)
         grouped_data['Total Amount Disbursed (UGX M)'] = round(grouped_data['Total Amount Disbursed (UGX M)']/1000000,2)
         
-        grouped_data['Pct women (%)'] = round((grouped_data['Number of women']/grouped_data['Number of loans'])*100,2)
-        grouped_data.insert(grouped_data.columns.get_loc('Number of women')+1, 'Pct women (%)', grouped_data.pop('Pct women (%)'))
+        grouped_data['Pct women (%)'] = round((grouped_data['No. of women loans']/grouped_data['Number of loans'])*100,2)
+        grouped_data.insert(grouped_data.columns.get_loc('No. of women loans')+1, 'Pct women (%)', grouped_data.pop('Pct women (%)'))
         
-        grouped_data['Pct youths (%)'] = round((grouped_data['Number of youths']/grouped_data['Number of loans'])*100,2)
-        grouped_data.insert(grouped_data.columns.get_loc('Number of youths')+1, 'Pct youths (%)', grouped_data.pop('Pct youths (%)'))
+        grouped_data['Pct youths (%)'] = round((grouped_data['No. of youths loans']/grouped_data['Number of loans'])*100,2)
+        grouped_data.insert(grouped_data.columns.get_loc('No. of youths loans')+1, 'Pct youths (%)', grouped_data.pop('Pct youths (%)'))
         grouped_data = grouped_data.sort_values('Number of loans', ascending=False)
         
         # Display the resulting DataFrame
         st.write(grouped_data)
         
         
-        st.subheader('Districts Served')
+        st.subheader('Number of Loans by District')
         districts = pd.DataFrame(df.groupby(['District'])['id'].count())
         districts.rename(columns={'id': 'Number of loans'}, inplace=True)
         districts = districts.sort_values('Number of loans', ascending=False)
