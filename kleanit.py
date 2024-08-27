@@ -113,8 +113,8 @@ if uploaded_file is not None:
             Ticket = format(round(df['Loan_amount'].mean(),0), ',')
             st.metric('Avg Tickets (UGX)', Ticket, 0)
         with col1:
-            Interest = round((df['Annual_Interest_red_bal-Cleaned'].mean())*100,1)
-            st.metric('Average Interest (%)', Interest, 0)
+            borrrowers = len(df['Unique_id'].unique())
+            st.metric('Number of borrowers', borrrowers,0)
         with col2:
             Gender = pd.DataFrame(df.groupby(by ='Gender').count()['year']).rename(columns = {'year':'Number'})
             Women = (Gender.iloc[0,0]/(Gender['Number'].sum())*100).round(1)
@@ -123,6 +123,21 @@ if uploaded_file is not None:
             Age_Group = pd.DataFrame(df.groupby(by ='Age_Group').count()['year']).rename(columns = {'year':'Number'})
             Youths = (Age_Group.iloc[-1,0]/(Age_Group['Number'].sum())*100).round(1)
             st.metric('Pct Youths Loans (%)', Youths, 0)
+        with col1:
+            Interest_red = round((df['Annual_Interest_red_bal-Cleaned'].mean())*100,1)
+            st.metric('Average Interest Red bal Annual (%)', Interest_red, 0)
+        
+        with col2:
+            Interest = round((pd.to_numeric(df['Interest_rate(As submitted by PFI)'], errors='coerce').mean()),2)
+            st.metric('Average Interest (As submitted)', Interest, 0)
+            
+        with col1:
+            young_women = len(df[(df['Age_Group'] == "Youth") & (df['Gender'] == "Female")]['Unique_id'].unique())
+            st.metric('No of young women', young_women, 0)
+
+        with col2:
+            pct_women = round((young_women/borrrowers)*100, 2)
+            st.metric('Pct of young women (%)', pct_women, 0)
             
             
         st.subheader('Loan Type')     
