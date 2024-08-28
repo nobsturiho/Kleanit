@@ -131,7 +131,7 @@ if uploaded_file is not None:
             Interest = round((pd.to_numeric(df['Interest_rate(As submitted by PFI)'], errors='coerce').mean()),2)
             st.metric('Average Interest (As submitted)', Interest, 0)
         with col3:
-            st.write("To be added")
+            st.write("")
         with col1:
             young_women = len(df[(df['Age_Group'] == "Youth") & (df['Gender'] == "Female")]['Unique_id'].unique())
             st.metric('No of young women', young_women, 0)
@@ -140,7 +140,7 @@ if uploaded_file is not None:
             pct_women = round((young_women/borrrowers)*100, 2)
             st.metric('Pct of young women (%)', pct_women, 0)
         with col3:
-            st.write("To be added")
+            st.write("")
             
             
         st.subheader('Loan Type')     
