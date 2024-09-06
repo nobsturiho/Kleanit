@@ -309,8 +309,6 @@ if add_sidebar == 'Check Data Issues':
             df = pd.read_csv(uploaded_file2)
         else:
             df = pd.read_excel(uploaded_file2)
-
-        df = pd.read_csv('Disbursement-2024-09-06.csv')
         
         st.subheader('Check for loans that do not belong to the month of submission')
         df['Date_of_loan_issue'] = pd.to_datetime(df['Date_of_loan_issue'], format="mixed", errors = "coerce")
