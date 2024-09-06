@@ -298,7 +298,7 @@ if add_sidebar == 'Data_Cleaning':
 if add_sidebar == 'Check Data Issues':
         
 
-    st.subheader('Import file to Analyse')
+    st.subheader('Import file to Analyse - Import raw data')
     
     #Add file uploader widget
     uploaded_file2 = st.file_uploader("Choose a file", type=["xlsx", "csv"])
