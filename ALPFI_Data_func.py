@@ -186,13 +186,13 @@ def clean(data):
         data['Interest_red_bal'] = pd.to_numeric(data['Interest_rate'], errors = 'coerce')
         
         for index, row in data.iterrows():
-            if row['lender'] == 'ASA Microfinance':
+            if row['lender'] == 'ASA Microfinance' or row['lender'] == 'ASA MFI II':
                 data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']*12/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce')
             
-            elif row['lender'] == 'Rukiga SACCO' or row['lender'] =='Vision Fund'or row['lender'] =='Butuuro SACCO':
+            elif row['lender'] == 'Rukiga SACCO' or row['lender'] =='Vision Fund'or row['lender'] =='Butuuro SACCO'or row['lender'] =='Butuuro SACCO II':
                 data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']*0.12
             
-            elif row['lender'] == 'EBO SACCO' or row['lender'] =='FINCA Uganda' or row['lender'] =='Hofokam Limited':
+            elif row['lender'] == 'EBO SACCO' or row['lender'] == 'EBO II' or row['lender'] =='FINCA Uganda' or row['lender'] =='Hofokam Limited':
                 data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
             
             elif row['lender'] == "Letshego Uganda" or row['lender'] =="Kyamuhunga People's SACCO":
@@ -670,7 +670,8 @@ def clean(data):
                     'kaliza','kabambiro',' bunoga',"bwizi  t"],
         'Mukono': ['mukono','seeta','kalagi','kyampisi','ngandu','nyenje','namawojjolo','namilyango','goma, +0.400000','kigunga',
                   'kibaati','ham mukasa','kasala','nakisunga','nangwa','katoogo','lwazi lc1','nakasagazi','mbiiko','mpata','namakomo',
-                   'lutengo','kasokoso','namayiba','ntawo','kyetume','lusera','kakukuulu','kimenyedde','nakifuma','kasawo'],
+                   'lutengo','kasokoso','namayiba','ntawo','kyetume','lusera','kakukuulu','kimenyedde','nakifuma','kasawo','nakibano','kaama'],
+        
         'Mpigi': ['mpigi','buwama','buyala,','kayabwe','katende','katiiti','kataba','jjanya','wassozi','busese','ssango a',
                   'bujuuko','kwaba','ndugu','mbazzi','mbizinya','lwera','kawansenyi'],
         'Mbarara': ['mbarara', 'kinoni t/c', 'kitunguru', 'ruhunga','rubaya', 'bwizibwera', 'kakoba', 'rwebishekye','kyandahi','kakoma', 
@@ -697,7 +698,7 @@ def clean(data):
                     'makindye','najja','kitintale','kibuli','kasubi','central ward','nsambya','bwaise','kisaasi','kira town council',
                    'mutungo','masanafu','kanyanya','madrisa','lunguja','kitende','lungujja','muyenga','mulago','luzira','luthuli',
                    'kisasi','bulabira','kabuusu','namirembe','kavule','kibuye','nakasero','kifumbira','kyambogo','gogonya',
-                    'salaama','nakinyuguzi','kyebando','kitante','kirombe','kabakanjagala','rubaga'],
+                    'salaama','nakinyuguzi','kyebando','kitante','kirombe','kabakanjagala','rubaga','kiwatule',],
         
         'Kiruhura': ['kiruhura', 'kasaana', 'kinoni', 'rushere', 'kyabagyenyi','shwerenkye','kayonza', 'kikatsi',
                      'kihwa','kiguma','burunga','rwanyangwe','nyakashashara','ekikoni','kyenshama','kagando','kashongi','nkungu',
@@ -726,7 +727,7 @@ def clean(data):
         'Soroti': ['soroti','gweri acuma','nakatunya ward','okuku','oderai','samuk','opiyai','orwadai'],
         'Kagadi':['kagadi','0.907898, 30.883805','mabaale','kihingana'],
         'Kabale': ['kabale', 'nyakashebeya','katungu','bubare tc','kable','kengoma'],
-        'Kayunga': ['kayunga','+0.630971,+32994','bukolooto','bukujju','wantete a','nabagali','kiteredde','ntenjeru'],
+        'Kayunga': ['kayunga','+0.630971,+32994','bukolooto','bukujju','wantete a','nabagali','kiteredde','ntenjeru','kirindi'],
         'Mbale': ['mbale','magale','nakaloke','bumbobi','busiu','busano','bukonde','malukhu b','kitwe'],
         'Pader': ['pader'],
         'Kamuli': ['kamuli','namwendwa','0.955676, 33.130','buliji','namunyagwe'],
@@ -774,7 +775,7 @@ def clean(data):
                   'bamusuuta','maggi village','kitangaala','kambugu'],
         'Kapchorwa': ['kapchorwa'],
         'Kween':['kween'],
-        'Kaliro': ['kaliro','kalilo'],
+        'Kaliro': ['kaliro','kalilo','kisenye','lugingo'],
         'Dokolo': ['dokolo','bobol'],
         'Nebbi': ['nebbi'],
         'Alebtong':['alebtong','okoto','olanoamuk'],

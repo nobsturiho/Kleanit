@@ -110,43 +110,53 @@ if add_sidebar == 'Data_Cleaning':
             #Add Columns
             col1, col2, col3 = st.columns(3)
             with col1:
-                Loans = df['Loan_ID'].count()
-                st.metric('Number of Loans', Loans,0)
+                Loans = df['Unique_id'].count()
+                st.metric('Number of Loans', Loans)
             with col2:
                 Amount = format(round(df['Loan_amount'].sum()/1000000,3), ',')
-                st.metric('Loan Amount (UGX M)', Amount, 0)
+                st.metric('Loan Amount (UGX M)', Amount)
             with col3:
                 Ticket = format(round(df['Loan_amount'].mean(),0), ',')
-                st.metric('Avg Tickets (UGX)', Ticket, 0)
+                st.metric('Avg Tickets (UGX)', Ticket)
             with col1:
                 borrrowers = len(df['Unique_id'].unique())
-                st.metric('Number of borrowers', borrrowers,0)
+                st.metric('Number of borrowers', borrrowers)
             with col2:
-                Gender = pd.DataFrame(df.groupby(by ='Gender').count()['year']).rename(columns = {'year':'Number'})
-                Women = (Gender.iloc[0,0]/(Gender['Number'].sum())*100).round(1)
-                st.metric('Pct Women Loans (%)', Women, 0)
+                womenloans = len(df[df['Gender'] == 'Female']['Unique_id'])
+                pctWomen = ((womenloans/Loans)*100).round(2)
+                st.metric('Pct Women Loans (%)', pctWomen)
             with col3:
                 Age_Group = pd.DataFrame(df.groupby(by ='Age_Group').count()['year']).rename(columns = {'year':'Number'})
                 Youths = (Age_Group.iloc[-1,0]/(Age_Group['Number'].sum())*100).round(1)
-                st.metric('Pct Youths Loans (%)', Youths, 0)
+                st.metric('Pct Youths Loans (%)', Youths)
             with col1:
                 Interest_red = round((df['Annual_Interest_red_bal-Cleaned'].mean())*100,1)
-                st.metric('Average Interest Red bal Annual (%)', Interest_red, 0)
+                st.metric('Average Interest Red bal Annual (%)', Interest_red)
             
             with col2:
                 Interest = round((pd.to_numeric(df['Interest_rate(As submitted by PFI)'], errors='coerce').mean()),2)
-                st.metric('Average Interest (As submitted)', Interest, 0)
+                st.metric('Average Interest (As submitted)', Interest)
             with col3:
-                st.write("")
+                Num_women = len(df[df['Gender'] == 'Female']['Unique_id'].unique())
+                st.metric('No. of women', Num_women)
             with col1:
                 young_women = len(df[(df['Age_Group'] == "Youth") & (df['Gender'] == "Female")]['Unique_id'].unique())
-                st.metric('No of young women', young_women, 0)
+                st.metric('No of young women', young_women)
     
             with col2:
                 pct_women = round((young_women/borrrowers)*100, 2)
-                st.metric('Pct of young women (%)', pct_women, 0)
+                st.metric('Pct of young women (%)', pct_women)
             with col3:
-                st.write("")
+                pct_women = round((Num_women/borrrowers)*100, 2)
+                st.metric('Pct of women borrowers (%)', pct_women)
+                
+            with col1:
+                numyouths = len(df[(df['Age_Group'] == "Youth")]['Unique_id'].unique())
+                st.metric('No of youth borowers', numyouths)
+        
+            with col2:
+                pct_youths = round((numyouths/borrrowers)*100, 2)
+                st.metric('Pct of youths (%)', pct_youths)
                 
                 
             st.subheader('Loan Type')     
@@ -217,7 +227,7 @@ if add_sidebar == 'Data_Cleaning':
             with col3:
                 st.subheader('Ticket Size')
                 Ticket = format(round(df['Loan_amount'].mean(),0), ',')
-                st.metric('Avg Tickets (UGX)', Ticket, 0)
+                st.metric('Avg Tickets (UGX)', Ticket)
                 
             with col1:
                 try:
@@ -235,7 +245,7 @@ if add_sidebar == 'Data_Cleaning':
                 
             with col3:
                 median_Ticket = format(round(df['Loan_amount'].median(),0), ',')
-                st.metric('Median Tickets (UGX)', median_Ticket, 0)
+                st.metric('Median Tickets (UGX)', median_Ticket)
             
             with col1:
                 try:
@@ -254,7 +264,7 @@ if add_sidebar == 'Data_Cleaning':
             with col3:
                 try:
                     mode_Ticket = format(round(df['Loan_amount'].mode()[0], 0), ',')
-                    st.metric('Mode Tickets (UGX)', mode_Ticket, 0)
+                    st.metric('Mode Tickets (UGX)', mode_Ticket)
                 except Exception:
                     st.write("Error")
     
@@ -297,7 +307,7 @@ if add_sidebar == 'Data_Cleaning':
 #Check data issues
 if add_sidebar == 'Check Data Issues':
         
-
+    
     st.subheader('Import file to Analyse - Import raw data')
     
     #Add file uploader widget
@@ -310,75 +320,104 @@ if add_sidebar == 'Check Data Issues':
         else:
             df = pd.read_excel(uploaded_file2)
         
-        st.subheader('Check for loans that do not belong to the month of submission')
-        df['Date_of_loan_issue'] = pd.to_datetime(df['Date_of_loan_issue'], format="mixed", errors = "coerce")
-        diffmonths = df[df['Date_of_loan_issue'].dt.month != df['month']]
-        st.write(diffmonths)
+        try:
+            st.subheader('Check for loans that do not belong to the month of submission')
+            df['Date_of_loan_issue'] = pd.to_datetime(df['Date_of_loan_issue'], format="mixed", errors = "coerce")
+            diffmonths = df[df['Date_of_loan_issue'].dt.month != df['month']]
+            st.write(diffmonths)
+        except Exception as e:
+            st.write(e)
         
+        try:
+            st.subheader('Check for repeated loans')
+            df['nin-loan'] = df['NIN']+df['Loan_ID']
+            df['countnin-loan'] = df['nin-loan'].map(df['nin-loan'].value_counts())
+            repeated = df[(df['countnin-loan']!= 1) & (df['NIN'].notna())].sort_values('NIN')
+            st.write(repeated)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.header('NINs')
+            st.subheader('Borrowers with NINs of less than 14 characters or greater than 14')
+            dfnin1 = df[(df['NIN'].str.replace(' ','').str.len() < 14) | (df['NIN'].str.replace(' ','').str.len() > 14)]
+            print(dfnin1.shape)
+            st.write(dfnin1)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.subheader('Borrowers with no NINs')
+            nonin = df[(df['NIN'].isna())]
+            st.write(nonin)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.subheader('Borrowers with NINs that do not start with CF or CM or PM or PF')
+            Ninchar = (df["NIN"].str.upper()).str.replace(' ','').str[0:2]
+            dfnin2 = df[(Ninchar != "CM") & (Ninchar != "CF") & (Ninchar != "PF") & (Ninchar != "PM")]
+            print(dfnin2.shape)
+            st.write(dfnin2)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.subheader('Combined Dataframe of all NIN issues')
+            combined_df = pd.concat([dfnin1, dfnin2, nonin])
+            combined_df = combined_df.drop_duplicates()
+            st.write(combined_df)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.subheader('NINs that do not correspond to Gender')
+            dfnin3 = df[((df["NIN"].str.upper()).str.replace(' ','').str[1:2] != (df["Gender"].str.upper()).str.replace(' ','').str[0:1]) & 
+                       ((df["NIN"].str.upper().str.replace(' ','').str[1:2] =="F")| (df["NIN"].str.upper().str.replace(' ','').str[1:2]=="M"))]
+            st.write(dfnin3)
+        except Exception as e:
+            st.write(e)
+            
+        try:
         
-        st.subheader('Check for repeated loans')
-        df['nin-loan'] = df['NIN']+df['Loan_ID']
-        df['countnin-loan'] = df['nin-loan'].map(df['nin-loan'].value_counts())
-        repeated = df[(df['countnin-loan']!= 1) & (df['NIN'].notna())].sort_values('NIN')
-        st.write(repeated)
-        
-        
-        st.header('NINs')
-        st.subheader('Borrowers with NINs of less than 14 characters or greater than 14')
-        dfnin1 = df[(df['NIN'].str.replace(' ','').str.len() < 14) | (df['NIN'].str.replace(' ','').str.len() > 14)]
-        print(dfnin1.shape)
-        st.write(dfnin1)
-        
-        st.subheader('Borrowers with no NINs')
-        nonin = df[(df['NIN'].isna())]
-        st.write(nonin)
-        
-        
-        st.subheader('Borrowers with NINs that do not start with CF or CM or PM or PF')
-        Ninchar = (df["NIN"].str.upper()).str.replace(' ','').str[0:2]
-        dfnin2 = df[(Ninchar != "CM") & (Ninchar != "CF") & (Ninchar != "PF") & (Ninchar != "PM")]
-        print(dfnin2.shape)
-        st.write(dfnin2)
-        
-        
-        st.subheader('Combined Dataframe of all NIN issues')
-        combined_df = pd.concat([dfnin1, dfnin2, nonin])
-        combined_df = combined_df.drop_duplicates()
-        st.write(combined_df)
-        
-        
-        st.subheader('NINs that do not correspond to Gender')
-        dfnin3 = df[((df["NIN"].str.upper()).str.replace(' ','').str[1:2] != (df["Gender"].str.upper()).str.replace(' ','').str[0:1]) & 
-                   ((df["NIN"].str.upper().str.replace(' ','').str[1:2] =="F")| (df["NIN"].str.upper().str.replace(' ','').str[1:2]=="M"))]
-        st.write(dfnin3)
-        
-        
-        st.header('Phone Numbers')
-        st.subheader('Phone numbers less than 9 characters')
-        phone = df[(df["Phone_number"].astype(str).str.len()<9) | (df['Phone_number'].isna())]
-        st.write(phone)
-        
-        
-        st.header('Borrower Names')
-        st.subheader('Loans with no borrower Name')
-        noname = df[(df['name_of_borrower'].isna()) | (df['name_of_borrower'].str.len()<4)]
-        st.write(noname)
-        
-        
-        st.subheader('Loans with same names but Different NINs - check to ensure its different borrowers')
-        df['name_of_borrowertemp'] = df['name_of_borrower'].str.replace(' ','')
-        df['NINtemp'] = df['NIN'].str.replace(' ','')
-        
-        df['countnames'] = df['name_of_borrowertemp'].map(df['name_of_borrowertemp'].value_counts())
-        df['name-nin'] = df['NINtemp'] + df['name_of_borrowertemp']
-        df['countname-nin'] = df['name-nin'].map(df['name-nin'].value_counts())
-        dfnamenin = df[(df['countnames'] != df['countname-nin']) & df['NIN'].notna() & df['name_of_borrower'].notna()]
-        dfnames1 = dfnamenin.sort_values('name_of_borrower')
-        st.write(dfnames1)
-        
-        
-        st.subheader('Loans with same NINs but Different borrower names')
-        df['countnin'] = df['NINtemp'].map(df['NINtemp'].value_counts())
-        dfrepnin = df[(df['countnin'] != df['countname-nin']) & df['NIN'].notna() & df['name_of_borrower'].notna()]
-        dfnames2 = dfrepnin.sort_values('NIN')
-        st.write(dfnames2)
+            st.header('Phone Numbers')
+            st.subheader('Phone numbers less than 9 characters')
+            phone = df[(df["Phone_number"].astype(str).str.len()<9) | (df['Phone_number'].isna())]
+            st.write(phone)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.header('Borrower Names')
+            st.subheader('Loans with no borrower Name')
+            noname = df[(df['name_of_borrower'].isna()) | (df['name_of_borrower'].str.len()<4)]
+            st.write(noname)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.subheader('Loans with same names but Different NINs - check to ensure its different borrowers')
+            df['name_of_borrowertemp'] = df['name_of_borrower'].str.replace(' ','')
+            df['NINtemp'] = df['NIN'].str.replace(' ','')
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            df['countnames'] = df['name_of_borrowertemp'].map(df['name_of_borrowertemp'].value_counts())
+            df['name-nin'] = df['NINtemp'] + df['name_of_borrowertemp']
+            df['countname-nin'] = df['name-nin'].map(df['name-nin'].value_counts())
+            dfnamenin = df[(df['countnames'] != df['countname-nin']) & df['NIN'].notna() & df['name_of_borrower'].notna()]
+            dfnames1 = dfnamenin.sort_values('name_of_borrower')
+            st.write(dfnames1)
+        except Exception as e:
+            st.write(e)
+            
+        try:
+            st.subheader('Loans with same NINs but Different borrower names')
+            df['countnin'] = df['NINtemp'].map(df['NINtemp'].value_counts())
+            dfrepnin = df[(df['countnin'] != df['countname-nin']) & df['NIN'].notna() & df['name_of_borrower'].notna()]
+            dfnames2 = dfrepnin.sort_values('NIN')
+            st.write(dfnames2)
+        except Exception as e:
+            st.write(e)
+            
