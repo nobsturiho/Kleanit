@@ -329,6 +329,7 @@ if add_sidebar == 'Check Data Issues':
             st.write(e)
         
         try:
+            df['Loan_ID'] = df['Loan_ID'].astype(str)
             st.subheader('Check for repeated loans')
             df['nin-loan'] = df['NIN']+df['Loan_ID']
             df['countnin-loan'] = df['nin-loan'].map(df['nin-loan'].value_counts())
