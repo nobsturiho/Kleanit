@@ -13,10 +13,12 @@ import streamlit as st
 def clean(data):
     try:
         # ####name_of_borrower to sentence case
+        data['name_of_borrower'] = data['name_of_borrower'].astype(str)
         data['name_of_borrower']=data['name_of_borrower'].str.title()
         
         
         # ####Line_of_business to sentence case
+        data['Line_of_business'] = data['Line_of_business'].astype(str)
         data['Line_of_business'] = data['Line_of_business'].str.title()
         
         
@@ -30,6 +32,7 @@ def clean(data):
     
     try:
         # #### email_of_borrower
+        data['email_of_borrower'] = data['email_of_borrower'].astype(str)
         data['email_of_borrower'] = data['email_of_borrower'].fillna('no-email')
         data['email_of_borrower'] = data['email_of_borrower'].str.lower()
         data['email_of_borrower'] = data['email_of_borrower'].str.replace(' ','')
