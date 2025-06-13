@@ -120,7 +120,7 @@ if add_sidebar == 'Data_Cleaning':
                 st.metric('Avg Tickets (UGX)', Ticket)
             with col1:
                 borrrowers = len(df['Unique_id'].unique())
-                st.metric('Number of borrowers', borrrowers)
+                st.metric('Number of unique borrowers', borrrowers)
             with col2:
                 womenloans = len(df[df['Gender'] == 'Female']['Unique_id'])
                 pctWomen = ((womenloans/Loans)*100).round(2)

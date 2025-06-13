@@ -55,8 +55,6 @@ def clean(data):
         educ_keywords = {
             'Not Educated': ['ilit','noschooling','peasant','ill','noformal','never','noeducat','noteducat','noteduacted','noschool',
                              'didnotgo','notqualified','iiiterate','nil','rural','nursary','childhood','none'],
-            'Information Not Available': ['nan','notavailable','unclassified','notgiven','0','notprovided','nottracked'
-                                          ,'unknown','#value!','#ref!','no'],
             'Primary': ['primary','prima','p1','p2','p3','p4','p5','p6','p7','p8','ple','prmary','rimary','prim','primry'],
             'Secondary': ['alevel','olevel','s1','s2','s3','s4','s5','s6','seconadry','uce','uace','senior',
                           'form1','form2','form3','form4','form5','form6','s,4','secodary','advancedlevel',
@@ -65,10 +63,12 @@ def clean(data):
                          'certificate','tartia','illletrate','professor','phd','general','guraduate','master',
                          'institution','professionalmanagement','gradaute','bachelors','teaching','nursing','k2',
                          'grade3tr','literate','gradeiv','undergr','grad','techn','tert','12th',
-                         'hairdressing','certi','gradev','gradeiii','gradeii','gradethree','sixthgrade']
+                         'hairdressing','certi','gradev','gradeiii','gradeii','gradethree','sixthgrade'],
+            'Not_defined': ['nan','notavailable','unclassified','notgiven','0','notprovided','nottracked'
+                                          ,'unknown','#value!','#ref!','no'],
         }
         
-        # Create a new column 'Highest_education_level' and initialize with 'Other'
+        # Create a new column 'Highest_education_level' and initialize with 'not_defined'
         data['eductemp'] = 'not_defined'
         
         for index, row in data.iterrows():
@@ -182,7 +182,9 @@ def clean(data):
     try:
         # #### Interest_rate
         data['Interest_rate'] = data['Interest_rate'].astype(str)
+        data['Interest_rate'] = data['Interest_rate'].str.replace('252250','4.5')
         data['Interest_rate'] = data['Interest_rate'].str.replace('per month','')
+        data['Interest_rate'] = data['Interest_rate'].str.replace('Per month','')
         data['Interest_rate'] = data['Interest_rate'].str.replace('%','')
         data['Interest_rate'] = data['Interest_rate'].replace('1.6','16')
     
@@ -204,13 +206,13 @@ def clean(data):
             elif row['lender'] == "Mushanga SACCO" or row['lender'] == "Premier Credit" or row['lender'] == "Lyamujungu SACCO":
                 data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']/100
                 
-            elif row['lender'] == 'Finfort': 
-                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('4.0', '87').replace('5.0', '87').replace('4.5', '87'))/100
+            elif row['lender'] == 'Finfort' or row['lender'] =="FinFort II": 
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('4.3', '84.8').replace('4.0', '80').replace('5.0', '97').replace('4.5', '88.3'))/100
             
             elif row['lender'] == 'Flow Uganda':
                 data.at[index, 'Interest_red_bal'] = round(round(row['Interest_red_bal']/row['Loan_amount'],3)*365/pd.to_numeric(row['Tenure_of_loan'], errors = 'coerce'),3)
             
-            elif row['lender'] == "Nile Microfinance":
+            elif row['lender'] == "Nile Microfinance" or row['lender'] =='Nile MFI II':
                 data.at[index, 'Interest_red_bal'] = 0.5
                 
             elif row['lender'] == "UGAFODE Microfinance":
@@ -235,7 +237,7 @@ def clean(data):
                 data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('18', '32'))/100
             
             elif row['lender'] == "Millennium SACCO 2012":
-                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('21.6', '37.7'))/100
+                data.at[index, 'Interest_red_bal'] = pd.to_numeric(str(row['Interest_red_bal']).replace('1.8', '37.7').replace('21.6', '37.7'))/100
                 
             else:
                 data.at[index, 'Interest_red_bal'] = row['Interest_red_bal']
@@ -266,21 +268,23 @@ def clean(data):
         for index, row in data.iterrows():
             #PFI submits day
             if row['lender'] == 'Lyamujungu SACCO' or row['lender'] == 'Mushanga SACCO'or row['lender'] == 'Development Microfinance'or row['lender'] == 'Millennium SACCO 2012':
-                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30.5,0)
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30.5,1)
             
             #PFI that submit weeks
             elif row['lender'] == 'Finfort' or row['lender'] =='Pride II' or row['lender'] =='Pride Microfinance Ltd':
-                data.at[index, 'Tenure_of_loan'] = row['Tenure_of_loan']/(30/7)
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30/7),1)
             
             #flow Uganda
             elif row['lender'] == 'Flow Uganda' or row['lender'] == 'KAMRO Capital':
-                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 2)
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/(30), 1)
             
             elif (row['lender'] == 'Hofokam Limited') & (row['Tenure_of_loan'] >36):
-                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30, 2)
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/30, 1)
             
             elif (row['lender'] == 'Liberation Community F.') & (row['Loan_term_value']=='Weeks'):
-                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/4, 2)
+                data.at[index, 'Tenure_of_loan'] = round(row['Tenure_of_loan']/4, 1)
+        
+        data['Tenure_of_loan'] = pd.to_numeric(data['Tenure_of_loan'])
     
     except Exception as e:
         st.write(e)
@@ -309,7 +313,7 @@ def clean(data):
     
     try:
         # #### Loan Term Value
-        data['Loan_term_value'] = 'Monthly'
+        data['Loan_term_value'] = 'Months'
         
         
         
@@ -906,6 +910,7 @@ def clean(data):
     
         data['Unique_id'] = data['Unique_id'].astype(str)
         data['Unique_id'] = data['Unique_id'].str.replace(" ","")
+        data['Unique_id'] = data['Unique_id'].str.replace('/ 070000072','')
         data['NINchar'] = data['Unique_id'].apply(len)
         
         data['Unique_id'] = np.where((data['NINchar']<10), 'No_id', data['Unique_id'])
